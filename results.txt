@@ -1,0 +1,22 @@
+RESULT RECORDS DATABASE
+Total Results: 2
+========================================
+
+----------------------------------------
+Student ID   : 1001
+Exam ID      : 101
+Score        : 30 / 30
+Percentage   : 100.00%
+Grade        : A
+Status       : PASS
+----------------------------------------
+
+----------------------------------------
+Student ID   : 1002
+Exam ID      : 102
+Score        : 22 / 30
+Percentage   : 73.33%
+Grade        : C
+Status       : PASS
+----------------------------------------
+
