@@ -1,0 +1,28 @@
+STUDENT RECORDS DATABASE
+Total Students: 3
+========================================
+
+----------------------------------------
+Student ID   : 1001
+Name         : John Doe
+Department   : Computer Science
+Password     : john123
+Reg. Date    : 15/05/2026
+----------------------------------------
+
+----------------------------------------
+Student ID   : 1002
+Name         : Sarah Smith
+Department   : Information Technology
+Password     : sarah456
+Reg. Date    : 16/05/2026
+----------------------------------------
+
+----------------------------------------
+Student ID   : 1003
+Name         : Mike Johnson
+Department   : Software Engineering
+Password     : mike789
+Reg. Date    : 17/05/2026
+----------------------------------------
+
