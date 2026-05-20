@@ -1,0 +1,80 @@
+EXAM RECORDS DATABASE
+Total Exams: 2
+========================================
+
+----------------------------------------
+Exam ID      : 101
+Course Name  : Data Structures
+Duration     : 60 minutes
+Questions    : 3
+Status       : 0
+----------------------------------------
+
+  Question 1:
+  ----------------------------------------
+  Question ID  : 1
+  Question     : What is the time complexity of binary search?
+  Option A     : O(n)
+  Option B     : O(log n)
+  Option C     : O(n^2)
+  Option D     : O(1)
+  Correct Ans  : B
+  Marks        : 10
+  ----------------------------------------
+
+  Question 2:
+  ----------------------------------------
+  Question ID  : 2
+  Question     : Which data structure uses LIFO principle?
+  Option A     : Queue
+  Option B     : Stack
+  Option C     : Tree
+  Option D     : Graph
+  Correct Ans  : B
+  Marks        : 10
+  ----------------------------------------
+
+  Question 3:
+  ----------------------------------------
+  Question ID  : 3
+  Question     : What is the root node in a tree?
+  Option A     : The last node
+  Option B     : The middle node
+  Option C     : The topmost node
+  Option D     : Any leaf node
+  Correct Ans  : C
+  Marks        : 10
+  ----------------------------------------
+
+----------------------------------------
+Exam ID      : 102
+Course Name  : Programming Fundamentals
+Duration     : 45 minutes
+Questions    : 2
+Status       : 0
+----------------------------------------
+
+  Question 1:
+  ----------------------------------------
+  Question ID  : 1
+  Question     : What does OOP stand for?
+  Option A     : Object Oriented Programming
+  Option B     : Only One Program
+  Option C     : Open Office Protocol
+  Option D     : Optimal Output Process
+  Correct Ans  : A
+  Marks        : 15
+  ----------------------------------------
+
+  Question 2:
+  ----------------------------------------
+  Question ID  : 2
+  Question     : Which loop executes at least once?
+  Option A     : for loop
+  Option B     : while loop
+  Option C     : do-while loop
+  Option D     : nested loop
+  Correct Ans  : C
+  Marks        : 15
+  ----------------------------------------
+
