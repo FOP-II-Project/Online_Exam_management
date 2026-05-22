@@ -1,22 +1,6 @@
 STUDENT RECORDS DATABASE
-Total Students: 5
+Total Students: 3
 ========================================
-
-----------------------------------------
-Student ID   : 1001
-Name         : John Abel
-Department   : Software
-Password     : john123
-Reg. Date    : 15/05/2026
-----------------------------------------
-
-----------------------------------------
-Student ID   : 1002
-Name         : Sarah Smith
-Department   : Information Technology
-Password     : sarah456
-Reg. Date    : 16/05/2026
-----------------------------------------
 
 ----------------------------------------
 Student ID   : ETS1848/17
