@@ -2,79 +2,21 @@
 #define EXAM_H
 
 #include <string>
+#include <vector>
 using namespace std;
 
-// ============================================================
-// MODULE: EXAM
-// ============================================================
-// RESPONSIBILITIES:
-// - Define exam and question data structures
-// - Manage exam creation and question addition
-// - Handle exam display
-// - Manage exam taking process
-// 
-// CONCEPTS DEMONSTRATED:
-// - Structures
-// - Arrays of structures
-// - Nested arrays (questions inside exam)
-// - Typedef
-// - Enum
-// 
-// INTERACTION WITH OTHER MODULES:
-// - Used by main.cpp for exam management
-// - Uses utility.h for helper functions
-// - Interacts with result.h for score calculation
-// - Uses filemanager.h for persistence
-// 
-// WHY MODULARIZATION IS BENEFICIAL:
-// - Separates exam logic from student management
-// - Easy to add new exam features
-// - Clear separation of concerns
-// - Reusable in other educational systems
-// ============================================================
-
-// Constants
-const int MAX_EXAMS = 50;
-const int MAX_QUESTIONS_PER_EXAM = 50;
-
-// ============================================================
-// ENUM: ExamStatus
-// ============================================================
-// PURPOSE: Represent the status of an exam
-// DEMONSTRATES: Enum concept
-// VALUES:
-// - ACTIVE: Exam is available for students
-// - INACTIVE: Exam is not available
-// - COMPLETED: Exam period has ended
-// BENEFIT: Type-safe status representation
-// ============================================================
+// Exam status enumeration
 enum ExamStatus {
     ACTIVE,
     INACTIVE,
     COMPLETED
 };
 
-// ============================================================
-// TYPEDEF: ExamStatusType
-// ============================================================
-// PURPOSE: Create alias for ExamStatus enum
-// DEMONSTRATES: Typedef with enum
-// ============================================================
 typedef ExamStatus ExamStatusType;
 
-// ============================================================
-// STRUCTURE: Question
-// ============================================================
-// PURPOSE: Store a single multiple-choice question
-// DEMONSTRATES: Structure concept
-// FIELDS:
-// - questionId: unique identifier
-// - questionText: the actual question
-// - optionA, optionB, optionC, optionD: four choices
-// - correctAnswer: correct option ('A', 'B', 'C', or 'D')
-// - mark: points awarded for correct answer
-// ============================================================
-struct Question {
+// Question class
+class Question {
+private:
     int questionId;
     string questionText;
     string optionA;
@@ -83,54 +25,81 @@ struct Question {
     string optionD;
     char correctAnswer;
     int mark;
+
+public:
+    Question();
+    Question(int id, string text, string a, string b, string c, string d, char ans, int m);
+    
+    int getQuestionId() const;
+    string getQuestionText() const;
+    string getOptionA() const;
+    string getOptionB() const;
+    string getOptionC() const;
+    string getOptionD() const;
+    char getCorrectAnswer() const;
+    int getMark() const;
+    
+    void setQuestionId(int id);
+    void setQuestionText(string text);
+    void setOptionA(string a);
+    void setOptionB(string b);
+    void setOptionC(string c);
+    void setOptionD(string d);
+    void setCorrectAnswer(char ans);
+    void setMark(int m);
+    
+    void inputQuestionData();
+    void displayQuestion() const;
+    bool checkAnswer(char answer) const;
 };
 
-// ============================================================
-// TYPEDEF: QuestionType
-// ============================================================
 typedef Question QuestionType;
 
-// ============================================================
-// STRUCTURE: Exam
-// ============================================================
-// PURPOSE: Store complete exam information
-// DEMONSTRATES:
-// - Structure concept
-// - Array inside structure (questions array)
-// - Nested data structures
-// FIELDS:
-// - examId: unique identifier
-// - courseName: subject/course name
-// - durationMinutes: time limit
-// - totalQuestions: number of questions in exam
-// - questions[]: array of Question structures
-// - status: exam availability status (enum)
-// ============================================================
-struct Exam {
+// Exam class using vector for questions (STL)
+class Exam {
+private:
     int examId;
     string courseName;
     int durationMinutes;
-    int totalQuestions;
-    QuestionType questions[MAX_QUESTIONS_PER_EXAM];  // Array of structures
+    vector<QuestionType> questions;  // Using vector instead of array
     ExamStatusType status;
+
+public:
+    Exam();
+    Exam(int id, string course, int duration);
+    
+    int getExamId() const;
+    string getCourseName() const;
+    int getDurationMinutes() const;
+    int getTotalQuestions() const;
+    ExamStatusType getStatus() const;
+    QuestionType getQuestion(int index) const;
+    
+    void setExamId(int id);
+    void setCourseName(string course);
+    void setDurationMinutes(int duration);
+    void setStatus(ExamStatusType st);
+    
+    void displayExamDetails() const;
+    void addQuestion(QuestionType q);
+    bool editQuestion(int questionNum);
+    bool deleteQuestion(int questionNum);
+    bool isActive() const;
 };
 
-// ============================================================
-// TYPEDEF: ExamType
-// ============================================================
 typedef Exam ExamType;
 
-// Function declarations
-void createExam(ExamType exams[], int &examCount);
-void addQuestion(ExamType exams[], int examCount);
-void editQuestion(ExamType exams[], int examCount);
-void deleteQuestion(ExamType exams[], int examCount);
-void updateExam(ExamType exams[], int examCount);
-void deleteExam(ExamType exams[], int &examCount);
-void displayExams(const ExamType exams[], int examCount);
-void displayExamDetails(const ExamType &exam);
-int searchExam(const ExamType exams[], int examCount, int examId);
-void takeExam(const ExamType exams[], int examCount, int studentId, 
-              struct Result results[], int &resultCount);
+// Functions using vector (STL)
+void createExam(vector<ExamType> &exams);
+void addQuestion(vector<ExamType> &exams);
+void editQuestion(vector<ExamType> &exams);
+void deleteQuestion(vector<ExamType> &exams);
+void updateExam(vector<ExamType> &exams);
+void deleteExam(vector<ExamType> &exams);
+void displayExams(const vector<ExamType> &exams);
+int searchExam(const vector<ExamType> &exams, int examId);
+void takeExam(const vector<ExamType> &exams, string studentId, 
+              vector<class Result> &results);
+void addQuestionsToExam(vector<ExamType> &exams, int examIndex);
 
 #endif
