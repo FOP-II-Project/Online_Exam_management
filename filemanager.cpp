@@ -4,8 +4,8 @@
 #include <iomanip>
 using namespace std;
 
-// Save all student records with professional formatting
-void saveStudentsToFile(const StudentType students[], int studentCount) {
+// Save students to file using vector
+void saveStudentsToFile(const vector<StudentType> &students) {
     ofstream outFile(STUDENTS_FILE);
     
     if (!outFile) {
@@ -13,97 +13,103 @@ void saveStudentsToFile(const StudentType students[], int studentCount) {
         return;
     }
     
-    // Write header
     outFile << "STUDENT RECORDS DATABASE" << endl;
-    outFile << "Total Students: " << studentCount << endl;
+    outFile << "Total Students: " << students.size() << endl;
     outFile << "========================================" << endl << endl;
     
-    // Write each student record with professional formatting
-    for (int i = 0; i < studentCount; i++) {
+    for (size_t i = 0; i < students.size(); i++) {
         outFile << RECORD_SEPARATOR << endl;
-        outFile << "Student ID   : " << students[i].studentId << endl;
-        outFile << "Name         : " << students[i].fullName << endl;
-        outFile << "Department   : " << students[i].department << endl;
-        outFile << "Password     : " << students[i].password << endl;
+        outFile << "Student ID   : " << students[i].getStudentId() << endl;
+        outFile << "Name         : " << students[i].getFullName() << endl;
+        outFile << "Department   : " << students[i].getDepartment() << endl;
+        outFile << "Password     : " << students[i].getPassword() << endl;
+        
+        DateType regDate = students[i].getRegistrationDate();
         outFile << "Reg. Date    : " 
-                << setfill('0') << setw(2) << students[i].registrationDate.day << "/"
-                << setfill('0') << setw(2) << students[i].registrationDate.month << "/"
-                << students[i].registrationDate.year << endl;
+                << setfill('0') << setw(2) << regDate.getDay() << "/"
+                << setfill('0') << setw(2) << regDate.getMonth() << "/"
+                << regDate.getYear() << endl;
         outFile << RECORD_SEPARATOR << endl << endl;
     }
     
     outFile.close();
-    cout << "Students saved successfully to " << STUDENTS_FILE << endl;
 }
 
-// Load all student records from file
-void loadStudentsFromFile(StudentType students[], int &studentCount) {
+// Load students from file using vector
+void loadStudentsFromFile(vector<StudentType> &students) {
     ifstream inFile(STUDENTS_FILE);
     
     if (!inFile) {
-        cout << "Note: " << STUDENTS_FILE << " not found. Starting with empty data." << endl;
-        studentCount = 0;
+        students.clear();
         return;
     }
     
     string line;
+    int studentCount = 0;
     
-    // Skip header lines
-    getline(inFile, line); // "STUDENT RECORDS DATABASE"
-    getline(inFile, line); // "Total Students: X"
+    getline(inFile, line);
+    getline(inFile, line);
     
-    // Extract count from header
     size_t pos = line.find(": ");
     if (pos != string::npos) {
         studentCount = stoi(line.substr(pos + 2));
     }
     
-    getline(inFile, line); // "========"
-    getline(inFile, line); // Empty line
+    getline(inFile, line);
+    getline(inFile, line);
     
-    // Read each student record
+    students.clear();
+    
     for (int i = 0; i < studentCount; i++) {
-        getline(inFile, line); // Separator
+        StudentType tempStudent;
         
-        // Read Student ID
+        getline(inFile, line);
+        
         getline(inFile, line);
         pos = line.find(": ");
-        students[i].studentId = stoi(line.substr(pos + 2));
+        if (pos != string::npos) {
+            tempStudent.setStudentId(line.substr(pos + 2));
+        }
         
-        // Read Name
         getline(inFile, line);
         pos = line.find(": ");
-        students[i].fullName = line.substr(pos + 2);
+        if (pos != string::npos) {
+            tempStudent.setFullName(line.substr(pos + 2));
+        }
         
-        // Read Department
         getline(inFile, line);
         pos = line.find(": ");
-        students[i].department = line.substr(pos + 2);
+        if (pos != string::npos) {
+            tempStudent.setDepartment(line.substr(pos + 2));
+        }
         
-        // Read Password
         getline(inFile, line);
         pos = line.find(": ");
-        students[i].password = line.substr(pos + 2);
+        if (pos != string::npos) {
+            tempStudent.setPassword(line.substr(pos + 2));
+        }
         
-        // Read Registration Date
         getline(inFile, line);
         pos = line.find(": ");
-        string dateStr = line.substr(pos + 2);
-        sscanf(dateStr.c_str(), "%d/%d/%d", 
-               &students[i].registrationDate.day,
-               &students[i].registrationDate.month,
-               &students[i].registrationDate.year);
+        if (pos != string::npos) {
+            string dateStr = line.substr(pos + 2);
+            int day, month, year;
+            sscanf(dateStr.c_str(), "%d/%d/%d", &day, &month, &year);
+            DateType tempDate(day, month, year);
+            tempStudent.setRegistrationDate(tempDate);
+        }
         
-        getline(inFile, line); // Separator
-        getline(inFile, line); // Empty line
+        students.push_back(tempStudent);
+        
+        getline(inFile, line);
+        getline(inFile, line);
     }
     
     inFile.close();
-    cout << "Loaded " << studentCount << " students from " << STUDENTS_FILE << endl;
 }
 
-// Save all exam records with professional formatting
-void saveExamsToFile(const ExamType exams[], int examCount) {
+// Save exams to file using vector
+void saveExamsToFile(const vector<ExamType> &exams) {
     ofstream outFile(EXAMS_FILE);
     
     if (!outFile) {
@@ -111,158 +117,171 @@ void saveExamsToFile(const ExamType exams[], int examCount) {
         return;
     }
     
-    // Write header
     outFile << "EXAM RECORDS DATABASE" << endl;
-    outFile << "Total Exams: " << examCount << endl;
+    outFile << "Total Exams: " << exams.size() << endl;
     outFile << "========================================" << endl << endl;
     
-    // Write each exam record
-    for (int i = 0; i < examCount; i++) {
+    for (size_t i = 0; i < exams.size(); i++) {
         outFile << RECORD_SEPARATOR << endl;
-        outFile << "Exam ID      : " << exams[i].examId << endl;
-        outFile << "Course Name  : " << exams[i].courseName << endl;
-        outFile << "Duration     : " << exams[i].durationMinutes << " minutes" << endl;
-        outFile << "Questions    : " << exams[i].totalQuestions << endl;
-        outFile << "Status       : " << (int)exams[i].status << endl;
+        outFile << "Exam ID      : " << exams[i].getExamId() << endl;
+        outFile << "Course Name  : " << exams[i].getCourseName() << endl;
+        outFile << "Duration     : " << exams[i].getDurationMinutes() << " minutes" << endl;
+        outFile << "Questions    : " << exams[i].getTotalQuestions() << endl;
+        outFile << "Status       : " << (int)exams[i].getStatus() << endl;
         outFile << RECORD_SEPARATOR << endl << endl;
         
-        // Write all questions for this exam
-        for (int j = 0; j < exams[i].totalQuestions; j++) {
-            const QuestionType &q = exams[i].questions[j];
+        for (int j = 0; j < exams[i].getTotalQuestions(); j++) {
+            QuestionType q = exams[i].getQuestion(j);
             
             outFile << "  Question " << (j + 1) << ":" << endl;
             outFile << "  ----------------------------------------" << endl;
-            outFile << "  Question ID  : " << q.questionId << endl;
-            outFile << "  Question     : " << q.questionText << endl;
-            outFile << "  Option A     : " << q.optionA << endl;
-            outFile << "  Option B     : " << q.optionB << endl;
-            outFile << "  Option C     : " << q.optionC << endl;
-            outFile << "  Option D     : " << q.optionD << endl;
-            outFile << "  Correct Ans  : " << q.correctAnswer << endl;
-            outFile << "  Marks        : " << q.mark << endl;
+            outFile << "  Question ID  : " << q.getQuestionId() << endl;
+            outFile << "  Question     : " << q.getQuestionText() << endl;
+            outFile << "  Option A     : " << q.getOptionA() << endl;
+            outFile << "  Option B     : " << q.getOptionB() << endl;
+            outFile << "  Option C     : " << q.getOptionC() << endl;
+            outFile << "  Option D     : " << q.getOptionD() << endl;
+            outFile << "  Correct Ans  : " << q.getCorrectAnswer() << endl;
+            outFile << "  Marks        : " << q.getMark() << endl;
             outFile << "  ----------------------------------------" << endl << endl;
         }
     }
     
     outFile.close();
-    cout << "Exams saved successfully to " << EXAMS_FILE << endl;
 }
 
-// Load all exam records from file
-void loadExamsFromFile(ExamType exams[], int &examCount) {
+// Load exams from file using vector
+void loadExamsFromFile(vector<ExamType> &exams) {
     ifstream inFile(EXAMS_FILE);
     
     if (!inFile) {
-        cout << "Note: " << EXAMS_FILE << " not found. Starting with empty data." << endl;
-        examCount = 0;
+        exams.clear();
         return;
     }
     
     string line;
+    int examCount = 0;
     
-    // Skip header lines
-    getline(inFile, line); // "EXAM RECORDS DATABASE"
-    getline(inFile, line); // "Total Exams: X"
+    getline(inFile, line);
+    getline(inFile, line);
     
-    // Extract count
     size_t pos = line.find(": ");
     if (pos != string::npos) {
         examCount = stoi(line.substr(pos + 2));
     }
     
-    getline(inFile, line); // "========"
-    getline(inFile, line); // Empty line
+    getline(inFile, line);
+    getline(inFile, line);
     
-    // Read each exam record
+    exams.clear();
+    
     for (int i = 0; i < examCount; i++) {
-        getline(inFile, line); // Separator
+        ExamType tempExam;
         
-        // Read Exam ID
+        getline(inFile, line);
+        
         getline(inFile, line);
         pos = line.find(": ");
-        exams[i].examId = stoi(line.substr(pos + 2));
-        
-        // Read Course Name
-        getline(inFile, line);
-        pos = line.find(": ");
-        exams[i].courseName = line.substr(pos + 2);
-        
-        // Read Duration
-        getline(inFile, line);
-        pos = line.find(": ");
-        exams[i].durationMinutes = stoi(line.substr(pos + 2));
-        
-        // Read Total Questions
-        getline(inFile, line);
-        pos = line.find(": ");
-        exams[i].totalQuestions = stoi(line.substr(pos + 2));
-        
-        // Read Status
-        getline(inFile, line);
-        pos = line.find(": ");
-        exams[i].status = (ExamStatusType)stoi(line.substr(pos + 2));
-        
-        getline(inFile, line); // Separator
-        getline(inFile, line); // Empty line
-        
-        // Read all questions for this exam
-        for (int j = 0; j < exams[i].totalQuestions; j++) {
-            QuestionType &q = exams[i].questions[j];
-            
-            getline(inFile, line); // "Question X:"
-            getline(inFile, line); // Separator
-            
-            // Read Question ID
-            getline(inFile, line);
-            pos = line.find(": ");
-            q.questionId = stoi(line.substr(pos + 2));
-            
-            // Read Question Text
-            getline(inFile, line);
-            pos = line.find(": ");
-            q.questionText = line.substr(pos + 2);
-            
-            // Read Option A
-            getline(inFile, line);
-            pos = line.find(": ");
-            q.optionA = line.substr(pos + 2);
-            
-            // Read Option B
-            getline(inFile, line);
-            pos = line.find(": ");
-            q.optionB = line.substr(pos + 2);
-            
-            // Read Option C
-            getline(inFile, line);
-            pos = line.find(": ");
-            q.optionC = line.substr(pos + 2);
-            
-            // Read Option D
-            getline(inFile, line);
-            pos = line.find(": ");
-            q.optionD = line.substr(pos + 2);
-            
-            // Read Correct Answer
-            getline(inFile, line);
-            pos = line.find(": ");
-            q.correctAnswer = line.substr(pos + 2)[0];
-            
-            // Read Marks
-            getline(inFile, line);
-            pos = line.find(": ");
-            q.mark = stoi(line.substr(pos + 2));
-            
-            getline(inFile, line); // Separator
-            getline(inFile, line); // Empty line
+        if (pos != string::npos) {
+            tempExam.setExamId(stoi(line.substr(pos + 2)));
         }
+        
+        getline(inFile, line);
+        pos = line.find(": ");
+        if (pos != string::npos) {
+            tempExam.setCourseName(line.substr(pos + 2));
+        }
+        
+        getline(inFile, line);
+        pos = line.find(": ");
+        int totalQuestions = 0;
+        if (pos != string::npos) {
+            tempExam.setDurationMinutes(stoi(line.substr(pos + 2)));
+        }
+        
+        getline(inFile, line);
+        pos = line.find(": ");
+        if (pos != string::npos) {
+            totalQuestions = stoi(line.substr(pos + 2));
+        }
+        
+        getline(inFile, line);
+        pos = line.find(": ");
+        if (pos != string::npos) {
+            tempExam.setStatus((ExamStatusType)stoi(line.substr(pos + 2)));
+        }
+        
+        getline(inFile, line);
+        getline(inFile, line);
+        
+        for (int j = 0; j < totalQuestions; j++) {
+            QuestionType tempQuestion;
+            
+            getline(inFile, line);
+            getline(inFile, line);
+            
+            getline(inFile, line);
+            pos = line.find(": ");
+            if (pos != string::npos) {
+                tempQuestion.setQuestionId(stoi(line.substr(pos + 2)));
+            }
+            
+            getline(inFile, line);
+            pos = line.find(": ");
+            if (pos != string::npos) {
+                tempQuestion.setQuestionText(line.substr(pos + 2));
+            }
+            
+            getline(inFile, line);
+            pos = line.find(": ");
+            if (pos != string::npos) {
+                tempQuestion.setOptionA(line.substr(pos + 2));
+            }
+            
+            getline(inFile, line);
+            pos = line.find(": ");
+            if (pos != string::npos) {
+                tempQuestion.setOptionB(line.substr(pos + 2));
+            }
+            
+            getline(inFile, line);
+            pos = line.find(": ");
+            if (pos != string::npos) {
+                tempQuestion.setOptionC(line.substr(pos + 2));
+            }
+            
+            getline(inFile, line);
+            pos = line.find(": ");
+            if (pos != string::npos) {
+                tempQuestion.setOptionD(line.substr(pos + 2));
+            }
+            
+            getline(inFile, line);
+            pos = line.find(": ");
+            if (pos != string::npos) {
+                tempQuestion.setCorrectAnswer(line.substr(pos + 2)[0]);
+            }
+            
+            getline(inFile, line);
+            pos = line.find(": ");
+            if (pos != string::npos) {
+                tempQuestion.setMark(stoi(line.substr(pos + 2)));
+            }
+            
+            tempExam.addQuestion(tempQuestion);
+            
+            getline(inFile, line);
+            getline(inFile, line);
+        }
+        
+        exams.push_back(tempExam);
     }
     
     inFile.close();
-    cout << "Loaded " << examCount << " exams from " << EXAMS_FILE << endl;
 }
 
-// Save all result records with professional formatting
-void saveResultsToFile(const ResultType results[], int resultCount) {
+// Save results to file using vector
+void saveResultsToFile(const vector<ResultType> &results) {
     ofstream outFile(RESULTS_FILE);
     
     if (!outFile) {
@@ -270,94 +289,96 @@ void saveResultsToFile(const ResultType results[], int resultCount) {
         return;
     }
     
-    // Write header
     outFile << "RESULT RECORDS DATABASE" << endl;
-    outFile << "Total Results: " << resultCount << endl;
+    outFile << "Total Results: " << results.size() << endl;
     outFile << "========================================" << endl << endl;
     
-    // Write each result record
-    for (int i = 0; i < resultCount; i++) {
+    for (size_t i = 0; i < results.size(); i++) {
         outFile << RECORD_SEPARATOR << endl;
-        outFile << "Student ID   : " << results[i].studentId << endl;
-        outFile << "Exam ID      : " << results[i].examId << endl;
-        outFile << "Score        : " << results[i].score << " / " << results[i].totalMarks << endl;
-        
-        // Calculate percentage
-        float percentage = (float)results[i].score / results[i].totalMarks * 100;
-        outFile << "Percentage   : " << fixed << setprecision(2) << percentage << "%" << endl;
-        
-        outFile << "Grade        : " << results[i].grade << endl;
-        outFile << "Status       : " << (results[i].passed ? "PASS" : "FAIL") << endl;
+        outFile << "Student ID   : " << results[i].getStudentId() << endl;
+        outFile << "Exam ID      : " << results[i].getExamId() << endl;
+        outFile << "Score        : " << results[i].getScore() << " / " << results[i].getTotalMarks() << endl;
+        outFile << "Percentage   : " << fixed << setprecision(2) << results[i].getPercentage() << "%" << endl;
+        outFile << "Grade        : " << results[i].getGrade() << endl;
+        outFile << "Status       : " << (results[i].isPassed() ? "PASS" : "FAIL") << endl;
         outFile << RECORD_SEPARATOR << endl << endl;
     }
     
     outFile.close();
-    cout << "Results saved successfully to " << RESULTS_FILE << endl;
 }
 
-// Load all result records from file
-void loadResultsFromFile(ResultType results[], int &resultCount) {
+// Load results from file using vector
+void loadResultsFromFile(vector<ResultType> &results) {
     ifstream inFile(RESULTS_FILE);
     
     if (!inFile) {
-        cout << "Note: " << RESULTS_FILE << " not found. Starting with empty data." << endl;
-        resultCount = 0;
+        results.clear();
         return;
     }
     
     string line;
+    int resultCount = 0;
     
-    // Skip header lines
-    getline(inFile, line); // "RESULT RECORDS DATABASE"
-    getline(inFile, line); // "Total Results: X"
+    getline(inFile, line);
+    getline(inFile, line);
     
-    // Extract count
     size_t pos = line.find(": ");
     if (pos != string::npos) {
         resultCount = stoi(line.substr(pos + 2));
     }
     
-    getline(inFile, line); // "========"
-    getline(inFile, line); // Empty line
+    getline(inFile, line);
+    getline(inFile, line);
     
-    // Read each result record
+    results.clear();
+    
     for (int i = 0; i < resultCount; i++) {
-        getline(inFile, line); // Separator
+        ResultType tempResult;
         
-        // Read Student ID
+        getline(inFile, line);
+        
         getline(inFile, line);
         pos = line.find(": ");
-        results[i].studentId = stoi(line.substr(pos + 2));
+        if (pos != string::npos) {
+            tempResult.setStudentId(line.substr(pos + 2));
+        }
         
-        // Read Exam ID
         getline(inFile, line);
         pos = line.find(": ");
-        results[i].examId = stoi(line.substr(pos + 2));
+        if (pos != string::npos) {
+            tempResult.setExamId(stoi(line.substr(pos + 2)));
+        }
         
-        // Read Score
         getline(inFile, line);
         pos = line.find(": ");
-        string scoreStr = line.substr(pos + 2);
-        sscanf(scoreStr.c_str(), "%d / %d", &results[i].score, &results[i].totalMarks);
+        if (pos != string::npos) {
+            string scoreStr = line.substr(pos + 2);
+            int score, totalMarks;
+            sscanf(scoreStr.c_str(), "%d / %d", &score, &totalMarks);
+            tempResult.setScore(score);
+            tempResult.setTotalMarks(totalMarks);
+        }
         
-        // Skip Percentage line
         getline(inFile, line);
         
-        // Read Grade
-        getline(inFile, line);
-        pos = line.find(": ");
-        results[i].grade = line.substr(pos + 2)[0];
-        
-        // Read Status
         getline(inFile, line);
         pos = line.find(": ");
-        string status = line.substr(pos + 2);
-        results[i].passed = (status == "PASS");
+        if (pos != string::npos) {
+            tempResult.setGrade(line.substr(pos + 2)[0]);
+        }
         
-        getline(inFile, line); // Separator
-        getline(inFile, line); // Empty line
+        getline(inFile, line);
+        pos = line.find(": ");
+        if (pos != string::npos) {
+            string status = line.substr(pos + 2);
+            tempResult.setPassed(status == "PASS");
+        }
+        
+        results.push_back(tempResult);
+        
+        getline(inFile, line);
+        getline(inFile, line);
     }
     
     inFile.close();
-    cout << "Loaded " << resultCount << " results from " << RESULTS_FILE << endl;
 }
