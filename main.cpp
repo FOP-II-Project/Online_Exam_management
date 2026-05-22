@@ -44,18 +44,24 @@ int main() {
         }
         
         cout << "\nEnter your choice: ";
-        cin >> choice;
+        if (!(cin >> choice)) {
+            cin.clear();
+            cin.ignore(10000, '\n');
+            cout << "Invalid input! Please enter a number." << endl;
+            pauseSystem();
+            continue;
+        }
         cin.ignore();
         
-        if (!validateChoice(choice, 1, 20)) {
-            cout << "Invalid choice! Please try again." << endl;
+        if (!validateChoice(choice, 1, 22)) {
+            cout << "Invalid choice! Please enter a number between 1 and 22." << endl;
             pauseSystem();
             continue;
         }
         
         handleMenuChoice(choice, isAdminLoggedIn, isStudentLoggedIn, loggedInStudentId);
         
-    } while (choice != 20);
+    } while (choice != 22);
     
     return 0;
 }
@@ -80,15 +86,17 @@ void displayMainMenu() {
     cout << "13. Display All Exams" << endl;
     cout << "14. View All Results" << endl;
     cout << "15. Save Data" << endl;
+    cout << "16. Admin Logout" << endl;
     
     cout << "\n=== STUDENT PANEL ===" << endl;
-    cout << "16. Student Login" << endl;
-    cout << "17. View Available Exams" << endl;
-    cout << "18. Take Exam" << endl;
-    cout << "19. View My Results" << endl;
+    cout << "17. Student Login" << endl;
+    cout << "18. View Available Exams" << endl;
+    cout << "19. Take Exam" << endl;
+    cout << "20. View My Results" << endl;
+    cout << "21. Student Logout" << endl;
     
     cout << "\n=== SYSTEM ===" << endl;
-    cout << "20. Exit" << endl;
+    cout << "22. Exit" << endl;
     displayLine();
 }
 
@@ -153,12 +161,28 @@ void handleMenuChoice(int choice, bool &isAdminLoggedIn, bool &isStudentLoggedIn
             isAdminLoggedIn = adminLogin();
             if (isAdminLoggedIn) {
                 isStudentLoggedIn = false;
+                loggedInStudentId = "";
             }
         }
         return;
     }
     
     if (choice == 16) {
+        if (!isAdminLoggedIn) {
+            cout << "\nYou are not logged in as Admin!" << endl;
+            pauseSystem();
+        } else {
+            clearScreen();
+            displayHeader("ADMIN LOGOUT");
+            cout << "\nLogging out..." << endl;
+            isAdminLoggedIn = false;
+            cout << "Admin logged out successfully!" << endl;
+            pauseSystem();
+        }
+        return;
+    }
+    
+    if (choice == 17) {
         if (isStudentLoggedIn) {
             cout << "\nAlready logged in as Student!" << endl;
             pauseSystem();
@@ -167,6 +191,23 @@ void handleMenuChoice(int choice, bool &isAdminLoggedIn, bool &isStudentLoggedIn
             if (isStudentLoggedIn) {
                 isAdminLoggedIn = false;
             }
+        }
+        return;
+    }
+    
+    if (choice == 21) {
+        if (!isStudentLoggedIn) {
+            cout << "\nYou are not logged in as Student!" << endl;
+            pauseSystem();
+        } else {
+            clearScreen();
+            displayHeader("STUDENT LOGOUT");
+            cout << "\nLogging out..." << endl;
+            cout << "Goodbye, " << loggedInStudentId << "!" << endl;
+            isStudentLoggedIn = false;
+            loggedInStudentId = "";
+            cout << "Student logged out successfully!" << endl;
+            pauseSystem();
         }
         return;
     }
@@ -206,7 +247,7 @@ void handleMenuChoice(int choice, bool &isAdminLoggedIn, bool &isStudentLoggedIn
                 updateStudent(students);
                 break;
             case 6:
-                deleteStudent(students);
+                deleteStudent(students, results);
                 break;
             case 7:
                 createExam(exams);
@@ -224,7 +265,7 @@ void handleMenuChoice(int choice, bool &isAdminLoggedIn, bool &isStudentLoggedIn
                 updateExam(exams);
                 break;
             case 12:
-                deleteExam(exams);
+                deleteExam(exams, results);
                 break;
             case 13:
                 displayExams(exams);
@@ -245,7 +286,7 @@ void handleMenuChoice(int choice, bool &isAdminLoggedIn, bool &isStudentLoggedIn
         }
     }
     
-    if (choice >= 17 && choice <= 19) {
+    if (choice >= 18 && choice <= 20) {
         if (!isStudentLoggedIn) {
             cout << "\nAccess Denied! Please login as Student first." << endl;
             pauseSystem();
@@ -253,19 +294,19 @@ void handleMenuChoice(int choice, bool &isAdminLoggedIn, bool &isStudentLoggedIn
         }
         
         switch (choice) {
-            case 17:
+            case 18:
                 displayExams(exams);
                 break;
-            case 18:
+            case 19:
                 takeExam(exams, loggedInStudentId, results);
                 break;
-            case 19:
+            case 20:
                 displayStudentResults(results, loggedInStudentId);
                 break;
         }
     }
     
-    if (choice == 20) {
+    if (choice == 22) {
         cout << "\nSaving data..." << endl;
         saveStudentsToFile(students);
         saveExamsToFile(exams);
@@ -278,6 +319,7 @@ void handleMenuChoice(int choice, bool &isAdminLoggedIn, bool &isStudentLoggedIn
         }
         if (isStudentLoggedIn) {
             isStudentLoggedIn = false;
+            loggedInStudentId = "";
         }
     }
 }
