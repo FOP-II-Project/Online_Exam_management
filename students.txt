@@ -1,11 +1,11 @@
 STUDENT RECORDS DATABASE
-Total Students: 3
+Total Students: 5
 ========================================
 
 ----------------------------------------
 Student ID   : 1001
-Name         : John Doe
-Department   : Computer Science
+Name         : John Abel
+Department   : Software
 Password     : john123
 Reg. Date    : 15/05/2026
 ----------------------------------------
@@ -19,10 +19,26 @@ Reg. Date    : 16/05/2026
 ----------------------------------------
 
 ----------------------------------------
-Student ID   : 1003
-Name         : Mike Johnson
+Student ID   : ETS1848/17
+Name         : Abraham Amogne
 Department   : Software Engineering
-Password     : mike789
-Reg. Date    : 17/05/2026
+Password     : Ab123
+Reg. Date    : 20/01/2026
+----------------------------------------
+
+----------------------------------------
+Student ID   : ETS1336/17
+Name         : Shanbel Dires
+Department   : Software Engineering
+Password     : 123456
+Reg. Date    : 06/03/2026
+----------------------------------------
+
+----------------------------------------
+Student ID   : ETS1840/17
+Name         : Abel Yalew
+Department   : Electrical Engineering
+Password     : abel123
+Reg. Date    : 04/05/2026
 ----------------------------------------
 
