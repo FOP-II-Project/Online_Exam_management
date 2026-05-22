@@ -1,235 +1,312 @@
 #include "student.h"
 #include "utility.h"
+#include "filemanager.h"
 #include <iostream>
 using namespace std;
 
-// ============================================================
-// FUNCTION: addStudent
-// ============================================================
-// PURPOSE: Add a new student to the system
-// PARAMETERS:
-// - students[]: array storing all student records
-// - studentCount: current number of students (passed by reference)
-// RETURN: void
-// LOGIC:
-// 1. Check if array is full
-// 2. Accept student details from user
-// 3. Store in array at index studentCount
-// 4. Increment studentCount
-// CONCEPTS USED:
-// - Arrays of structures
-// - Pass by reference
-// - Input validation
-// - Nested structures (Date)
-// WHY NEEDED: Core functionality for admin to register students
-// INTERACTION: Called from main menu, data saved by filemanager
-// ============================================================
-void addStudent(StudentType students[], int &studentCount) {
-    clearScreen();
-    displayHeader("ADD NEW STUDENT");
-    
-    if (studentCount >= MAX_STUDENTS) {
-        cout << "Error: Maximum student limit reached!" << endl;
-        pauseSystem();
-        return;
+// Date class implementation
+Date::Date() {
+    day = 1;
+    month = 1;
+    year = 2026;
+}
+
+Date::Date(int d, int m, int y) {
+    day = d;
+    month = m;
+    year = y;
+}
+
+int Date::getDay() const { return day; }
+int Date::getMonth() const { return month; }
+int Date::getYear() const { return year; }
+
+void Date::setDay(int d) { day = d; }
+void Date::setMonth(int m) { month = m; }
+void Date::setYear(int y) { year = y; }
+
+void Date::inputDate() {
+    while (true) {
+        cout << "Enter Day (1-31): ";
+        if (!(cin >> day)) {
+            cin.clear();
+            cin.ignore(10000, '\n');
+            cout << "Error: Please enter a valid number!" << endl;
+            continue;
+        }
+        
+        cout << "Enter Month (1-12): ";
+        if (!(cin >> month)) {
+            cin.clear();
+            cin.ignore(10000, '\n');
+            cout << "Error: Please enter a valid number!" << endl;
+            continue;
+        }
+        
+        cout << "Enter Year: ";
+        if (!(cin >> year)) {
+            cin.clear();
+            cin.ignore(10000, '\n');
+            cout << "Error: Please enter a valid number!" << endl;
+            continue;
+        }
+        
+        if (isValid()) {
+            break;
+        } else {
+            cout << "Error: Invalid date! Please try again." << endl;
+        }
     }
-    
-    StudentType newStudent;
-    
+}
+
+void Date::displayDate() const {
+    cout << day << "/" << month << "/" << year;
+}
+
+bool Date::isValid() const {
+    if (day < 1 || day > 31) return false;
+    if (month < 1 || month > 12) return false;
+    if (year < 1900 || year > 2100) return false;
+    return true;
+}
+
+// Student class implementation
+Student::Student() {
+    studentId = "";
+    fullName = "";
+    department = "";
+    password = "";
+    registrationDate = DateType();
+}
+
+Student::Student(string id, string name, string dept, string pass, DateType date) {
+    studentId = id;
+    fullName = name;
+    department = dept;
+    password = pass;
+    registrationDate = date;
+}
+
+string Student::getStudentId() const { return studentId; }
+string Student::getFullName() const { return fullName; }
+string Student::getDepartment() const { return department; }
+string Student::getPassword() const { return password; }
+DateType Student::getRegistrationDate() const { return registrationDate; }
+
+void Student::setStudentId(string id) { studentId = id; }
+void Student::setFullName(string name) { fullName = name; }
+void Student::setDepartment(string dept) { department = dept; }
+void Student::setPassword(string pass) { password = pass; }
+void Student::setRegistrationDate(DateType date) { registrationDate = date; }
+
+void Student::inputStudentData() {
     cout << "Enter Student ID: ";
-    cin >> newStudent.studentId;
-    cin.ignore();
-    
-    // Validate student ID is positive
-    if (!validatePositiveInt(newStudent.studentId)) {
-        cout << "Error: Student ID must be positive!" << endl;
-        pauseSystem();
-        return;
-    }
-    
-    // Check for duplicate ID
-    if (searchStudent(students, studentCount, newStudent.studentId) != -1) {
-        cout << "Error: Student ID already exists!" << endl;
-        pauseSystem();
-        return;
-    }
+    getline(cin, studentId);
     
     cout << "Enter Full Name: ";
-    getline(cin, newStudent.fullName);
-    
-    // Validate name is not empty
-    if (newStudent.fullName.empty()) {
-        cout << "Error: Name cannot be empty!" << endl;
-        pauseSystem();
-        return;
-    }
+    getline(cin, fullName);
     
     cout << "Enter Department: ";
-    getline(cin, newStudent.department);
-    
-    // Validate department is not empty
-    if (newStudent.department.empty()) {
-        cout << "Error: Department cannot be empty!" << endl;
-        pauseSystem();
-        return;
-    }
+    getline(cin, department);
     
     cout << "Enter Password: ";
-    getline(cin, newStudent.password);
+    getline(cin, password);
     
-    // Validate password is not empty
-    if (newStudent.password.empty()) {
-        cout << "Error: Password cannot be empty!" << endl;
-        pauseSystem();
-        return;
-    }
-    
-    // Input registration date (nested structure)
     cout << "\n--- Registration Date ---" << endl;
-    cout << "Enter Day (1-31): ";
-    cin >> newStudent.registrationDate.day;
+    registrationDate.inputDate();
+}
+
+void Student::displayStudentInfo() const {
+    cout << "Student ID: " << studentId << endl;
+    cout << "Name: " << fullName << endl;
+    cout << "Department: " << department << endl;
+    cout << "Registration Date: ";
+    registrationDate.displayDate();
+    cout << endl;
+}
+
+bool Student::verifyPassword(string pass) const {
+    return password == pass;
+}
+
+// Module-level functions using vector
+void addStudent(vector<StudentType> &students) {
+    clearScreen();
+    displayHeader("ADD NEW STUDENTS");
     
-    // Validate day
-    if (newStudent.registrationDate.day < 1 || newStudent.registrationDate.day > 31) {
-        cout << "Error: Day must be between 1 and 31!" << endl;
-        pauseSystem();
-        return;
+    int numStudents;
+    while (true) {
+        cout << "How many students do you want to add? ";
+        if (!(cin >> numStudents)) {
+            cin.clear();
+            cin.ignore(10000, '\n');
+            cout << "Error: Please enter a valid number!" << endl;
+            continue;
+        }
+        cin.ignore();
+        
+        if (numStudents <= 0) {
+            cout << "Error: Number must be positive!" << endl;
+            continue;
+        }
+        
+        break;
     }
     
-    cout << "Enter Month (1-12): ";
-    cin >> newStudent.registrationDate.month;
+    int addedCount = 0;
     
-    // Validate month
-    if (newStudent.registrationDate.month < 1 || newStudent.registrationDate.month > 12) {
-        cout << "Error: Month must be between 1 and 12!" << endl;
-        pauseSystem();
-        return;
+    for (int i = 0; i < numStudents; i++) {
+        clearScreen();
+        displayHeader("ADD STUDENT");
+        cout << "Adding student " << (i + 1) << " of " << numStudents << endl;
+        displayLine();
+        
+        StudentType newStudent;
+        string tempId;
+        
+        while (true) {
+            cout << "\nEnter Student ID (or type 'exit' to stop): ";
+            getline(cin, tempId);
+            
+            if (tempId == "exit" || tempId == "EXIT") {
+                cout << "\nStopping student addition..." << endl;
+                goto save_and_exit;
+            }
+            
+            if (tempId.empty()) {
+                cout << "Error: Student ID cannot be empty!" << endl;
+                continue;
+            }
+            
+            if (searchStudent(students, tempId) != -1) {
+                cout << "Error: Student ID already exists! Try another ID." << endl;
+                continue;
+            }
+            
+            break;
+        }
+        newStudent.setStudentId(tempId);
+        
+        string tempName;
+        while (true) {
+            cout << "Enter Full Name: ";
+            getline(cin, tempName);
+            
+            if (tempName.empty()) {
+                cout << "Error: Name cannot be empty!" << endl;
+                continue;
+            }
+            break;
+        }
+        newStudent.setFullName(tempName);
+        
+        string tempDept;
+        while (true) {
+            cout << "Enter Department: ";
+            getline(cin, tempDept);
+            
+            if (tempDept.empty()) {
+                cout << "Error: Department cannot be empty!" << endl;
+                continue;
+            }
+            break;
+        }
+        newStudent.setDepartment(tempDept);
+        
+        string tempPass;
+        while (true) {
+            cout << "Enter Password: ";
+            getline(cin, tempPass);
+            
+            if (tempPass.empty()) {
+                cout << "Error: Password cannot be empty!" << endl;
+                continue;
+            }
+            break;
+        }
+        newStudent.setPassword(tempPass);
+        
+        cout << "\n--- Registration Date ---" << endl;
+        DateType tempDate;
+        while (true) {
+            tempDate.inputDate();
+            
+            if (!tempDate.isValid()) {
+                cout << "Error: Invalid date! Please enter again." << endl;
+                continue;
+            }
+            break;
+        }
+        newStudent.setRegistrationDate(tempDate);
+        
+        students.push_back(newStudent);
+        addedCount++;
+        
+        cout << "\nStudent " << (i + 1) << " added successfully!" << endl;
+        
+        if (i < numStudents - 1) {
+            cout << "\nPress Enter to add next student...";
+            cin.get();
+        }
     }
     
-    cout << "Enter Year: ";
-    cin >> newStudent.registrationDate.year;
-    
-    // Validate year
-    if (newStudent.registrationDate.year < 1900 || newStudent.registrationDate.year > 2100) {
-        cout << "Error: Year must be between 1900 and 2100!" << endl;
-        pauseSystem();
-        return;
+save_and_exit:
+    if (addedCount > 0) {
+        saveStudentsToFile(students);
+        cout << "\n" << addedCount << " student(s) added successfully!" << endl;
+        cout << "Data saved to file automatically." << endl;
+        cout << "Total students: " << students.size() << endl;
+    } else {
+        cout << "\nNo students were added." << endl;
     }
     
-    // Add student to array
-    students[studentCount] = newStudent;
-    studentCount++;
-    
-    cout << "\nStudent added successfully!" << endl;
-    cout << "Total students: " << studentCount << endl;
     pauseSystem();
 }
 
-// ============================================================
-// FUNCTION: displayStudents
-// ============================================================
-// PURPOSE: Display all registered students
-// PARAMETERS:
-// - students[]: array of student records
-// - studentCount: number of students to display
-// RETURN: void
-// LOGIC:
-// 1. Check if any students exist
-// 2. Loop through array
-// 3. Display each student's information
-// CONCEPTS USED:
-// - Arrays of structures
-// - For loop
-// - Accessing structure members
-// WHY NEEDED: Allows admin to view all students
-// INTERACTION: Called from admin menu
-// ============================================================
-void displayStudents(const StudentType students[], int studentCount) {
+void displayStudents(const vector<StudentType> &students) {
     clearScreen();
     displayHeader("ALL STUDENTS");
     
-    if (studentCount == 0) {
+    if (students.empty()) {
         cout << "No students registered yet." << endl;
         pauseSystem();
         return;
     }
     
-    for (int i = 0; i < studentCount; i++) {
+    for (size_t i = 0; i < students.size(); i++) {
         cout << "\n--- Student " << (i + 1) << " ---" << endl;
-        displayStudentInfo(students[i]);
+        students[i].displayStudentInfo();
         displayLine();
     }
     
-    cout << "\nTotal Students: " << studentCount << endl;
+    cout << "\nTotal Students: " << students.size() << endl;
     pauseSystem();
 }
 
-// ============================================================
-// FUNCTION: searchStudent
-// ============================================================
-// PURPOSE: Search for a student by ID
-// PARAMETERS:
-// - students[]: array to search
-// - studentCount: number of students
-// - studentId: ID to search for
-// RETURN: index if found, -1 if not found
-// LOGIC:
-// 1. Loop through student array
-// 2. Compare each student's ID with search key
-// 3. Return index if match found
-// 4. Return -1 if not found
-// CONCEPTS USED:
-// - Linear search algorithm
-// - Arrays of structures
-// - For loop
-// WHY NEEDED: Required for update, delete, and login operations
-// INTERACTION: Used by multiple functions
-// ============================================================
-int searchStudent(const StudentType students[], int studentCount, int studentId) {
-    for (int i = 0; i < studentCount; i++) {
-        if (students[i].studentId == studentId) {
+int searchStudent(const vector<StudentType> &students, string studentId) {
+    for (size_t i = 0; i < students.size(); i++) {
+        if (students[i].getStudentId() == studentId) {
             return i;
         }
     }
     return -1;
 }
 
-// ============================================================
-// FUNCTION: updateStudent
-// ============================================================
-// PURPOSE: Update existing student information
-// PARAMETERS:
-// - students[]: array of students
-// - studentCount: total number of students
-// RETURN: void
-// LOGIC:
-// 1. Accept student ID to update
-// 2. Search for student
-// 3. If found, accept new details
-// 4. Update the record
-// CONCEPTS USED:
-// - Arrays of structures
-// - Search operation
-// - Input validation
-// WHY NEEDED: Allows admin to modify student records
-// INTERACTION: Called from admin menu
-// ============================================================
-void updateStudent(StudentType students[], int studentCount) {
+void updateStudent(vector<StudentType> &students) {
     clearScreen();
     displayHeader("UPDATE STUDENT");
     
-    if (studentCount == 0) {
+    if (students.empty()) {
         cout << "No students to update." << endl;
         pauseSystem();
         return;
     }
     
-    int studentId;
+    string studentId;
     cout << "Enter Student ID to update: ";
-    cin >> studentId;
-    cin.ignore();
+    getline(cin, studentId);
     
-    int index = searchStudent(students, studentCount, studentId);
+    int index = searchStudent(students, studentId);
     
     if (index == -1) {
         cout << "Student not found!" << endl;
@@ -238,58 +315,59 @@ void updateStudent(StudentType students[], int studentCount) {
     }
     
     cout << "\n--- Current Information ---" << endl;
-    displayStudentInfo(students[index]);
+    students[index].displayStudentInfo();
     
     cout << "\n--- Enter New Information ---" << endl;
     
-    cout << "Enter Full Name: ";
-    getline(cin, students[index].fullName);
+    string newName;
+    while (true) {
+        cout << "Enter Full Name: ";
+        getline(cin, newName);
+        if (!newName.empty()) break;
+        cout << "Error: Name cannot be empty!" << endl;
+    }
+    students[index].setFullName(newName);
     
-    cout << "Enter Department: ";
-    getline(cin, students[index].department);
+    string newDept;
+    while (true) {
+        cout << "Enter Department: ";
+        getline(cin, newDept);
+        if (!newDept.empty()) break;
+        cout << "Error: Department cannot be empty!" << endl;
+    }
+    students[index].setDepartment(newDept);
     
-    cout << "Enter Password: ";
-    getline(cin, students[index].password);
+    string newPass;
+    while (true) {
+        cout << "Enter Password: ";
+        getline(cin, newPass);
+        if (!newPass.empty()) break;
+        cout << "Error: Password cannot be empty!" << endl;
+    }
+    students[index].setPassword(newPass);
+    
+    saveStudentsToFile(students);
     
     cout << "\nStudent updated successfully!" << endl;
+    cout << "Data saved to file automatically." << endl;
     pauseSystem();
 }
 
-// ============================================================
-// FUNCTION: deleteStudent
-// ============================================================
-// PURPOSE: Remove a student from the system
-// PARAMETERS:
-// - students[]: array of students
-// - studentCount: total students (passed by reference)
-// RETURN: void
-// LOGIC:
-// 1. Accept student ID to delete
-// 2. Search for student
-// 3. If found, shift all elements after it left
-// 4. Decrement studentCount
-// CONCEPTS USED:
-// - Arrays of structures
-// - Array manipulation
-// - For loop
-// WHY NEEDED: Allows admin to remove students
-// INTERACTION: Called from admin menu
-// ============================================================
-void deleteStudent(StudentType students[], int &studentCount) {
+void deleteStudent(vector<StudentType> &students) {
     clearScreen();
     displayHeader("DELETE STUDENT");
     
-    if (studentCount == 0) {
+    if (students.empty()) {
         cout << "No students to delete." << endl;
         pauseSystem();
         return;
     }
     
-    int studentId;
+    string studentId;
     cout << "Enter Student ID to delete: ";
-    cin >> studentId;
+    getline(cin, studentId);
     
-    int index = searchStudent(students, studentCount, studentId);
+    int index = searchStudent(students, studentId);
     
     if (index == -1) {
         cout << "Student not found!" << endl;
@@ -298,20 +376,21 @@ void deleteStudent(StudentType students[], int &studentCount) {
     }
     
     cout << "\n--- Student to Delete ---" << endl;
-    displayStudentInfo(students[index]);
+    students[index].displayStudentInfo();
     
     char confirm;
     cout << "\nAre you sure you want to delete? (y/n): ";
     cin >> confirm;
+    cin.ignore();
     
     if (confirm == 'y' || confirm == 'Y') {
-        // Shift elements left to fill the gap
-        for (int i = index; i < studentCount - 1; i++) {
-            students[i] = students[i + 1];
-        }
-        studentCount--;
+        students.erase(students.begin() + index);
+        
+        saveStudentsToFile(students);
+        
         cout << "Student deleted successfully!" << endl;
-        cout << "Total students: " << studentCount << endl;
+        cout << "Data saved to file automatically." << endl;
+        cout << "Total students: " << students.size() << endl;
     } else {
         cout << "Deletion cancelled." << endl;
     }
@@ -319,48 +398,25 @@ void deleteStudent(StudentType students[], int &studentCount) {
     pauseSystem();
 }
 
-// ============================================================
-// FUNCTION: studentLogin
-// ============================================================
-// PURPOSE: Authenticate student credentials
-// PARAMETERS:
-// - students[]: array of students
-// - studentCount: total students
-// - loggedInStudentId: stores ID of logged-in student (by reference)
-// RETURN: true if login successful, false otherwise
-// LOGIC:
-// 1. Accept student ID and password
-// 2. Search for student by ID
-// 3. Verify password matches
-// 4. Store student ID if successful
-// CONCEPTS USED:
-// - Arrays of structures
-// - String comparison
-// - Boolean return
-// - Pass by reference
-// WHY NEEDED: Security - only registered students can take exams
-// INTERACTION: Called from main menu
-// ============================================================
-bool studentLogin(const StudentType students[], int studentCount, int &loggedInStudentId) {
+bool studentLogin(const vector<StudentType> &students, string &loggedInStudentId) {
     clearScreen();
     displayHeader("STUDENT LOGIN");
     
-    int studentId;
+    string studentId;
     string password;
     
     cout << "Enter Student ID: ";
-    cin >> studentId;
-    cin.ignore();
+    getline(cin, studentId);
     
     cout << "Enter Password: ";
     getline(cin, password);
     
-    int index = searchStudent(students, studentCount, studentId);
+    int index = searchStudent(students, studentId);
     
-    if (index != -1 && students[index].password == password) {
+    if (index != -1 && students[index].verifyPassword(password)) {
         loggedInStudentId = studentId;
         cout << "\nLogin successful!" << endl;
-        cout << "Welcome, " << students[index].fullName << "!" << endl;
+        cout << "Welcome, " << students[index].getFullName() << "!" << endl;
         pauseSystem();
         return true;
     }
@@ -368,28 +424,4 @@ bool studentLogin(const StudentType students[], int studentCount, int &loggedInS
     cout << "\nInvalid credentials!" << endl;
     pauseSystem();
     return false;
-}
-
-// ============================================================
-// FUNCTION: displayStudentInfo
-// ============================================================
-// PURPOSE: Display detailed information of a single student
-// PARAMETERS:
-// - student: student record to display
-// RETURN: void
-// LOGIC: Display all fields of the student structure
-// CONCEPTS USED:
-// - Structure member access
-// - Nested structure access (Date)
-// WHY NEEDED: Reusable display function
-// INTERACTION: Called by multiple display functions
-// ============================================================
-void displayStudentInfo(const StudentType &student) {
-    cout << "Student ID: " << student.studentId << endl;
-    cout << "Name: " << student.fullName << endl;
-    cout << "Department: " << student.department << endl;
-    cout << "Registration Date: " 
-         << student.registrationDate.day << "/"
-         << student.registrationDate.month << "/"
-         << student.registrationDate.year << endl;
 }
