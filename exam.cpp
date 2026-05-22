@@ -683,7 +683,7 @@ void updateExam(vector<ExamType> &exams) {
     pauseSystem();
 }
 
-void deleteExam(vector<ExamType> &exams) {
+void deleteExam(vector<ExamType> &exams, vector<Result> &results) {
     clearScreen();
     displayHeader("DELETE EXAM");
     
@@ -719,8 +719,20 @@ void deleteExam(vector<ExamType> &exams) {
     exams[examIndex].displayExamDetails();
     displayLine();
     
+    int resultCount = 0;
+    for (size_t i = 0; i < results.size(); i++) {
+        if (results[i].getExamId() == examId) {
+            resultCount++;
+        }
+    }
+    
     cout << "\nWARNING: This will delete the exam and all its questions!" << endl;
-    cout << "Are you sure you want to delete this exam? (Y/N): ";
+    if (resultCount > 0) {
+        cout << "WARNING: This exam has " << resultCount << " student result(s)." << endl;
+        cout << "Deleting the exam will also delete all related results!" << endl;
+    }
+    
+    cout << "\nAre you sure you want to delete this exam? (Y/N): ";
     char confirm;
     cin >> confirm;
     cin.ignore();
@@ -733,9 +745,21 @@ void deleteExam(vector<ExamType> &exams) {
     
     exams.erase(exams.begin() + examIndex);
     
+    for (size_t i = 0; i < results.size(); ) {
+        if (results[i].getExamId() == examId) {
+            results.erase(results.begin() + i);
+        } else {
+            i++;
+        }
+    }
+    
     saveExamsToFile(exams);
+    saveResultsToFile(results);
     
     cout << "\nExam deleted successfully!" << endl;
+    if (resultCount > 0) {
+        cout << resultCount << " result(s) also deleted." << endl;
+    }
     cout << "Data saved to file automatically." << endl;
     cout << "Remaining exams: " << exams.size() << endl;
     pauseSystem();
