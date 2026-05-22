@@ -4,153 +4,100 @@
 #include <iomanip>
 using namespace std;
 
-// ============================================================
-// FUNCTION: calculateGrade
-// ============================================================
-// PURPOSE: Calculate letter grade based on percentage
-// PARAMETERS:
-// - score: marks obtained by student
-// - totalMarks: maximum possible marks
-// RETURN: char representing grade (A, B, C, D, F)
-// LOGIC:
-// 1. Calculate percentage
-// 2. Apply grading criteria
-// 3. Return appropriate grade
-// GRADING CRITERIA:
-// - 90-100%: A
-// - 80-89%: B
-// - 70-79%: C
-// - 60-69%: D
-// - Below 60%: F
-// CONCEPTS USED:
-// - Arithmetic operations
-// - Conditional statements (if-else)
-// - Type casting
-// WHY NEEDED: Standardized grade calculation
-// INTERACTION: Called by takeExam function
-// ============================================================
-char calculateGrade(int score, int totalMarks) {
-    if (totalMarks == 0) {
-        return 'F';
-    }
-    
-    float percentage = (float)score / totalMarks * 100;
+// Result class implementation
+Result::Result() {
+    studentId = "";
+    examId = 0;
+    score = 0;
+    totalMarks = 0;
+    grade = 'F';
+    passed = false;
+}
+
+Result::Result(string sId, int eId, int sc, int total) {
+    studentId = sId;
+    examId = eId;
+    score = sc;
+    totalMarks = total;
+    calculateGrade();
+    passed = (score >= (totalMarks * 0.5));
+}
+
+string Result::getStudentId() const { return studentId; }
+int Result::getExamId() const { return examId; }
+int Result::getScore() const { return score; }
+int Result::getTotalMarks() const { return totalMarks; }
+char Result::getGrade() const { return grade; }
+bool Result::isPassed() const { return passed; }
+
+void Result::setStudentId(string sId) { studentId = sId; }
+void Result::setExamId(int eId) { examId = eId; }
+void Result::setScore(int sc) { score = sc; }
+void Result::setTotalMarks(int total) { totalMarks = total; }
+void Result::setGrade(char g) { grade = g; }
+void Result::setPassed(bool p) { passed = p; }
+
+float Result::getPercentage() const {
+    if (totalMarks == 0) return 0.0f;
+    return ((float)score / totalMarks) * 100.0f;
+}
+
+void Result::calculateGrade() {
+    float percentage = getPercentage();
     
     if (percentage >= 90) {
-        return 'A';
+        grade = 'A';
     } else if (percentage >= 80) {
-        return 'B';
+        grade = 'B';
     } else if (percentage >= 70) {
-        return 'C';
+        grade = 'C';
     } else if (percentage >= 60) {
-        return 'D';
+        grade = 'D';
     } else {
-        return 'F';
+        grade = 'F';
     }
 }
 
-// ============================================================
-// FUNCTION: displayResult
-// ============================================================
-// PURPOSE: Display a single result record
-// PARAMETERS:
-// - result: result record to display
-// RETURN: void
-// LOGIC:
-// 1. Display all result fields
-// 2. Calculate and show percentage
-// 3. Show pass/fail status
-// CONCEPTS USED:
-// - Structure member access
-// - Arithmetic operations
-// - Conditional display
-// WHY NEEDED: Formatted result presentation
-// INTERACTION: Called after exam completion and by display functions
-// ============================================================
-void displayResult(const ResultType &result) {
-    cout << "Student ID: " << result.studentId << endl;
-    cout << "Exam ID: " << result.examId << endl;
-    cout << "Score: " << result.score << " / " << result.totalMarks << endl;
-    
-    // Format percentage to 2 decimal places
-    float percentage = (float)result.score / result.totalMarks * 100;
-    cout << "Percentage: ";
-    cout.precision(2);
-    cout << fixed << percentage << "%" << endl;
-    cout.unsetf(ios::fixed);
-    
-    cout << "Grade: " << result.grade << endl;
-    cout << "Status: " << (result.passed ? "PASSED" : "FAILED") << endl;
+void Result::displayResult() const {
+    cout << "Student ID: " << studentId << endl;
+    cout << "Exam ID: " << examId << endl;
+    cout << "Score: " << score << " / " << totalMarks << endl;
+    cout << "Percentage: " << fixed << setprecision(2) << getPercentage() << "%" << endl;
+    cout << "Grade: " << grade << endl;
+    cout << "Status: " << (passed ? "PASSED" : "FAILED") << endl;
 }
 
-// ============================================================
-// FUNCTION: displayAllResults
-// ============================================================
-// PURPOSE: Display all results in the system
-// PARAMETERS:
-// - results[]: array of result records
-// - resultCount: number of results
-// RETURN: void
-// LOGIC:
-// 1. Check if any results exist
-// 2. Loop through result array
-// 3. Display each result
-// CONCEPTS USED:
-// - Arrays of structures
-// - For loop
-// WHY NEEDED: Allows admin to view all exam results
-// INTERACTION: Called from admin menu
-// ============================================================
-void displayAllResults(const ResultType results[], int resultCount) {
+// Module-level functions using vector
+void displayAllResults(const vector<ResultType> &results) {
     clearScreen();
     displayHeader("ALL RESULTS");
     
-    if (resultCount == 0) {
+    if (results.empty()) {
         cout << "No results available." << endl;
         pauseSystem();
         return;
     }
     
-    for (int i = 0; i < resultCount; i++) {
+    for (size_t i = 0; i < results.size(); i++) {
         cout << "\n--- Result " << (i + 1) << " ---" << endl;
-        displayResult(results[i]);
+        results[i].displayResult();
         displayLine();
     }
     
-    cout << "\nTotal Results: " << resultCount << endl;
+    cout << "\nTotal Results: " << results.size() << endl;
     pauseSystem();
 }
 
-// ============================================================
-// FUNCTION: displayStudentResults
-// ============================================================
-// PURPOSE: Display all results for a specific student
-// PARAMETERS:
-// - results[]: array of results
-// - resultCount: total results
-// - studentId: ID of student whose results to display
-// RETURN: void
-// LOGIC:
-// 1. Loop through results array
-// 2. Display only results matching studentId
-// 3. Count and display total results found
-// CONCEPTS USED:
-// - Arrays of structures
-// - Conditional filtering
-// - For loop
-// WHY NEEDED: Students can view their own results
-// INTERACTION: Called from student menu
-// ============================================================
-void displayStudentResults(const ResultType results[], int resultCount, int studentId) {
+void displayStudentResults(const vector<ResultType> &results, string studentId) {
     clearScreen();
     displayHeader("MY RESULTS");
     
     int found = 0;
     
-    for (int i = 0; i < resultCount; i++) {
-        if (results[i].studentId == studentId) {
+    for (size_t i = 0; i < results.size(); i++) {
+        if (results[i].getStudentId() == studentId) {
             cout << "\n--- Result " << (found + 1) << " ---" << endl;
-            displayResult(results[i]);
+            results[i].displayResult();
             displayLine();
             found++;
         }
@@ -166,30 +113,9 @@ void displayStudentResults(const ResultType results[], int resultCount, int stud
     pauseSystem();
 }
 
-// ============================================================
-// FUNCTION: searchResult
-// ============================================================
-// PURPOSE: Search for a specific result by student and exam ID
-// PARAMETERS:
-// - results[]: array to search
-// - resultCount: number of results
-// - studentId: student ID to match
-// - examId: exam ID to match
-// RETURN: index if found, -1 if not found
-// LOGIC:
-// 1. Loop through results array
-// 2. Check if both studentId and examId match
-// 3. Return index if found
-// CONCEPTS USED:
-// - Linear search algorithm
-// - Arrays of structures
-// - Multiple condition checking
-// WHY NEEDED: Prevents duplicate result entries
-// INTERACTION: Can be used before creating new result
-// ============================================================
-int searchResult(const ResultType results[], int resultCount, int studentId, int examId) {
-    for (int i = 0; i < resultCount; i++) {
-        if (results[i].studentId == studentId && results[i].examId == examId) {
+int searchResult(const vector<ResultType> &results, string studentId, int examId) {
+    for (size_t i = 0; i < results.size(); i++) {
+        if (results[i].getStudentId() == studentId && results[i].getExamId() == examId) {
             return i;
         }
     }
