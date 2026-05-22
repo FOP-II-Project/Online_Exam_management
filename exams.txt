@@ -1,5 +1,5 @@
 EXAM RECORDS DATABASE
-Total Exams: 2
+Total Exams: 3
 ========================================
 
 ----------------------------------------
@@ -76,5 +76,25 @@ Status       : 0
   Option D     : nested loop
   Correct Ans  : C
   Marks        : 15
+  ----------------------------------------
+
+----------------------------------------
+Exam ID      : 100
+Course Name  : Database
+Duration     : 20 minutes
+Questions    : 1
+Status       : 0
+----------------------------------------
+
+  Question 1:
+  ----------------------------------------
+  Question ID  : 1
+  Question     : which one is relational database?
+  Option A     : MogoDb
+  Option B     : mysql
+  Option C     : graphical
+  Option D     : document based
+  Correct Ans  : B
+  Marks        : 1
   ----------------------------------------
 
