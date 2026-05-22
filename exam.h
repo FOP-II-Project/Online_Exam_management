@@ -95,7 +95,7 @@ void addQuestion(vector<ExamType> &exams);
 void editQuestion(vector<ExamType> &exams);
 void deleteQuestion(vector<ExamType> &exams);
 void updateExam(vector<ExamType> &exams);
-void deleteExam(vector<ExamType> &exams);
+void deleteExam(vector<ExamType> &exams, vector<class Result> &results);
 void displayExams(const vector<ExamType> &exams);
 int searchExam(const vector<ExamType> &exams, int examId);
 void takeExam(const vector<ExamType> &exams, string studentId, 
