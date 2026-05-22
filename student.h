@@ -63,12 +63,15 @@ public:
 
 typedef Student StudentType;
 
+// Forward declaration for Result class
+class Result;
+
 // Functions using vector (STL)
 void addStudent(vector<StudentType> &students);
 void displayStudents(const vector<StudentType> &students);
 int searchStudent(const vector<StudentType> &students, string studentId);
 void updateStudent(vector<StudentType> &students);
-void deleteStudent(vector<StudentType> &students);
+void deleteStudent(vector<StudentType> &students, vector<Result> &results);
 bool studentLogin(const vector<StudentType> &students, string &loggedInStudentId);
 
 #endif
