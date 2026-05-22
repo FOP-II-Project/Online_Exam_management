@@ -1,4 +1,5 @@
 #include "student.h"
+#include "result.h"
 #include "utility.h"
 #include "filemanager.h"
 #include <iostream>
@@ -354,7 +355,7 @@ void updateStudent(vector<StudentType> &students) {
     pauseSystem();
 }
 
-void deleteStudent(vector<StudentType> &students) {
+void deleteStudent(vector<StudentType> &students, vector<Result> &results) {
     clearScreen();
     displayHeader("DELETE STUDENT");
     
@@ -379,6 +380,18 @@ void deleteStudent(vector<StudentType> &students) {
     cout << "\n--- Student to Delete ---" << endl;
     students[index].displayStudentInfo();
     
+    int resultCount = 0;
+    for (size_t i = 0; i < results.size(); i++) {
+        if (results[i].getStudentId() == studentId) {
+            resultCount++;
+        }
+    }
+    
+    if (resultCount > 0) {
+        cout << "\nWARNING: This student has " << resultCount << " exam result(s)." << endl;
+        cout << "Deleting the student will also delete all their results!" << endl;
+    }
+    
     char confirm;
     cout << "\nAre you sure you want to delete? (y/n): ";
     cin >> confirm;
@@ -387,9 +400,21 @@ void deleteStudent(vector<StudentType> &students) {
     if (confirm == 'y' || confirm == 'Y') {
         students.erase(students.begin() + index);
         
-        saveStudentsToFile(students);
+        for (size_t i = 0; i < results.size(); ) {
+            if (results[i].getStudentId() == studentId) {
+                results.erase(results.begin() + i);
+            } else {
+                i++;
+            }
+        }
         
-        cout << "Student deleted successfully!" << endl;
+        saveStudentsToFile(students);
+        saveResultsToFile(results);
+        
+        cout << "\nStudent deleted successfully!" << endl;
+        if (resultCount > 0) {
+            cout << resultCount << " result(s) also deleted." << endl;
+        }
         cout << "Data saved to file automatically." << endl;
         cout << "Total students: " << students.size() << endl;
     } else {
