@@ -1,6 +1,7 @@
 #ifndef FILEMANAGER_H
 #define FILEMANAGER_H
 
+#include <vector>
 #include "student.h"
 #include "exam.h"
 #include "result.h"
@@ -9,20 +10,16 @@
 const string STUDENTS_FILE = "students.txt";
 const string EXAMS_FILE = "exams.txt";
 const string RESULTS_FILE = "results.txt";
-
-// Record separator for professional formatting
 const string RECORD_SEPARATOR = "----------------------------------------";
 
-// Student file operations
-void saveStudentsToFile(const StudentType students[], int studentCount);
-void loadStudentsFromFile(StudentType students[], int &studentCount);
+// File operations using vector (STL)
+void saveStudentsToFile(const vector<StudentType> &students);
+void loadStudentsFromFile(vector<StudentType> &students);
 
-// Exam file operations
-void saveExamsToFile(const ExamType exams[], int examCount);
-void loadExamsFromFile(ExamType exams[], int &examCount);
+void saveExamsToFile(const vector<ExamType> &exams);
+void loadExamsFromFile(vector<ExamType> &exams);
 
-// Result file operations
-void saveResultsToFile(const ResultType results[], int resultCount);
-void loadResultsFromFile(ResultType results[], int &resultCount);
+void saveResultsToFile(const vector<ResultType> &results);
+void loadResultsFromFile(vector<ResultType> &results);
 
 #endif
