@@ -27,7 +27,7 @@ void Date::setYear(int y) { year = y; }
 
 void Date::inputDate() {
     while (true) {
-        cout << "Enter Day (1-31): ";
+        cout << "Enter Day (1-30): ";
         if (!(cin >> day)) {
             cin.clear();
             cin.ignore(10000, '\n');
@@ -64,9 +64,10 @@ void Date::displayDate() const {
 }
 
 bool Date::isValid() const {
-    if (day < 1 || day > 31) return false;
-    if (month < 1 || month > 12) return false;
     if (year < 1900 || year > 2100) return false;
+    if (month < 1 || month > 12) return false;
+    if (day < 1 || day > 30) return false;
+    
     return true;
 }
 
