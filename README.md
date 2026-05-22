@@ -136,7 +136,7 @@ The system follows a **modular architecture** with **class-based design** and cl
 - **Profile Management:** Update student information
 - **Search Functionality:** Quick lookup by student ID
 - **Record Deletion:** Remove students with confirmation
-- **Data Validation:** Ensures data integrity (no duplicates, valid dates)
+- **Data Validation:** Ensures data integrity (no duplicates, valid dates 1-30 for all months)
 - **Dynamic Storage:** Uses `vector<Student>` for unlimited capacity
 
 **Technical Implementation:**
