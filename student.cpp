@@ -101,23 +101,6 @@ void Student::setDepartment(string dept) { department = dept; }
 void Student::setPassword(string pass) { password = pass; }
 void Student::setRegistrationDate(DateType date) { registrationDate = date; }
 
-void Student::inputStudentData() {
-    cout << "Enter Student ID: ";
-    getline(cin, studentId);
-    
-    cout << "Enter Full Name: ";
-    getline(cin, fullName);
-    
-    cout << "Enter Department: ";
-    getline(cin, department);
-    
-    cout << "Enter Password: ";
-    getline(cin, password);
-    
-    cout << "\n--- Registration Date ---" << endl;
-    registrationDate.inputDate();
-}
-
 void Student::displayStudentInfo() const {
     cout << "Student ID: " << studentId << endl;
     cout << "Name: " << fullName << endl;
@@ -422,32 +405,4 @@ void deleteStudent(vector<StudentType> &students, vector<Result> &results) {
     }
     
     pauseSystem();
-}
-
-bool studentLogin(const vector<StudentType> &students, string &loggedInStudentId) {
-    clearScreen();
-    displayHeader("STUDENT LOGIN");
-    
-    string studentId;
-    string password;
-    
-    cout << "Enter Student ID: ";
-    getline(cin, studentId);
-    
-    cout << "Enter Password: ";
-    getline(cin, password);
-    
-    int index = searchStudent(students, studentId);
-    
-    if (index != -1 && students[index].verifyPassword(password)) {
-        loggedInStudentId = studentId;
-        cout << "\nLogin successful!" << endl;
-        cout << "Welcome, " << students[index].getFullName() << "!" << endl;
-        pauseSystem();
-        return true;
-    }
-    
-    cout << "\nInvalid credentials!" << endl;
-    pauseSystem();
-    return false;
 }

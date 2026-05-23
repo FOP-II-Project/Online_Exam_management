@@ -56,7 +56,6 @@ public:
     void setPassword(string pass);
     void setRegistrationDate(DateType date);
     
-    void inputStudentData();
     void displayStudentInfo() const;
     bool verifyPassword(string pass) const;
 };
@@ -72,6 +71,5 @@ void displayStudents(const vector<StudentType> &students);
 int searchStudent(const vector<StudentType> &students, string studentId);
 void updateStudent(vector<StudentType> &students);
 void deleteStudent(vector<StudentType> &students, vector<Result> &results);
-bool studentLogin(const vector<StudentType> &students, string &loggedInStudentId);
 
 #endif
