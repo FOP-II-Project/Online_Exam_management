@@ -1,11 +1,11 @@
 EXAM RECORDS DATABASE
-Total Exams: 3
+Total Exams: 4
 ========================================
 
 ----------------------------------------
 Exam ID      : 101
-Course Name  : Data Structures
-Duration     : 60 minutes
+Course Name  : DAS
+Duration     : 10 minutes
 Questions    : 3
 Status       : 0
 ----------------------------------------
@@ -96,5 +96,73 @@ Status       : 0
   Option D     : document based
   Correct Ans  : B
   Marks        : 1
+  ----------------------------------------
+
+----------------------------------------
+Exam ID      : 1000
+Course Name  : Data Communication
+Duration     : 10 minutes
+Questions    : 5
+Status       : 0
+----------------------------------------
+
+  Question 1:
+  ----------------------------------------
+  Question ID  : 1
+  Question     : What is data?
+  Option A     : Processed information
+  Option B     : Organized facts only
+  Option C     : Raw facts and concepts
+  Option D     : Communication device
+  Correct Ans  : C
+  Marks        : 2
+  ----------------------------------------
+
+  Question 2:
+  ----------------------------------------
+  Question ID  : 2
+  Question     : hich of the following is NOT a representation of data?
+  Option A     : Images
+  Option B     : Signals
+  Option C     : Characters
+  Option D     : Buildings
+  Correct Ans  : D
+  Marks        : 2
+  ----------------------------------------
+
+  Question 3:
+  ----------------------------------------
+  Question ID  : 3
+  Question     : ata communication is the process of:
+  Option A     : Storing files permanently
+  Option B     : Exchanging meaningful information
+  Option C     : Creating databases
+  Option D     : Compressing images
+  Correct Ans  : B
+  Marks        : 2
+  ----------------------------------------
+
+  Question 4:
+  ----------------------------------------
+  Question ID  : 4
+  Question     : hich component is responsible for rules in communication?
+  Option A     : Sender
+  Option B     : Receiver
+  Option C     : Protocol
+  Option D     : Message
+  Correct Ans  : C
+  Marks        : 2
+  ----------------------------------------
+
+  Question 5:
+  ----------------------------------------
+  Question ID  : 5
+  Question     : ow many major components does a communication system contain?
+  Option A     : 3
+  Option B     : 4
+  Option C     : 5
+  Option D     : 7
+  Correct Ans  : C
+  Marks        : 2
   ----------------------------------------
 

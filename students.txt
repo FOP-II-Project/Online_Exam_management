@@ -1,5 +1,5 @@
 STUDENT RECORDS DATABASE
-Total Students: 3
+Total Students: 5
 ========================================
 
 ----------------------------------------
@@ -24,5 +24,21 @@ Name         : Abel Yalew
 Department   : Electrical Engineering
 Password     : abel123
 Reg. Date    : 04/05/2026
+----------------------------------------
+
+----------------------------------------
+Student ID   : ETS1221/17
+Name         : Aster Abebe
+Department   : Biotechnology
+Password     : aster123
+Reg. Date    : 03/02/2025
+----------------------------------------
+
+----------------------------------------
+Student ID   : ETS1321/17
+Name         : Yoadan Yosef
+Department   : computer science
+Password     : yoadan123
+Reg. Date    : 25/01/2024
 ----------------------------------------
 

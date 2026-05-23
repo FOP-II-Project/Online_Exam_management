@@ -1,0 +1,13 @@
+RESULT RECORDS DATABASE
+Total Results: 1
+========================================
+
+----------------------------------------
+Student ID   : ETS1848/17
+Exam ID      : 102
+Score        : 30 / 30
+Percentage   : 100.00%
+Grade        : A
+Status       : PASS
+----------------------------------------
+
