@@ -959,16 +959,11 @@ void takeExam(const vector<ExamType> &exams, const vector<StudentType> &students
         QuestionType currentQuestion = exams[examIndex].getQuestion(i);
         int timeLimit = currentQuestion.getTimeLimit();
         
-        // Start timer
-        questionStartTime = time(0);
-        questionTimeLimit = timeLimit;
-        timeIsUp = false;
-        
         // Display question
         clearScreen();
-        cout << "═══════════════════════════════════════════════════════════" << endl;
-        cout << " Question " << (i + 1) << "/" << exams[examIndex].getTotalQuestions() << "                    ⏱ Time Limit: " << timeLimit << "s" << endl;
-        cout << "═══════════════════════════════════════════════════════════" << endl;
+        displayLine();
+        cout << "Q" << (i + 1) << "/" << exams[examIndex].getTotalQuestions() << " | Time: " << timeLimit << "s | Points: " << currentQuestion.getMark() << endl;
+        displayLine();
         cout << endl;
         cout << currentQuestion.getQuestionText() << endl << endl;
         cout << "  A. " << currentQuestion.getOptionA() << endl;
@@ -976,69 +971,112 @@ void takeExam(const vector<ExamType> &exams, const vector<StudentType> &students
         cout << "  C. " << currentQuestion.getOptionC() << endl;
         cout << "  D. " << currentQuestion.getOptionD() << endl;
         cout << endl;
-        cout << "Points: " << currentQuestion.getMark() << endl;
-        cout << "───────────────────────────────────────────────────────────" << endl;
+        displayLine();
         
+        // Start timer
+        time_t startTime = time(0);
         char answer = 'X';
         bool answered = false;
-        
-        cout << "\nAnswer (A/B/C/D): ";
+        string userInput = "";
         
         #ifdef _WIN32
-            // Windows: Non-blocking input with timer
-            while (!timeIsUp && !answered) {
-                // Check elapsed time
+            // Windows: Non-blocking input with countdown
+            int lastShown = timeLimit + 1;
+            
+            while (true) {
+                // Calculate elapsed time
                 time_t now = time(0);
-                int elapsed = difftime(now, questionStartTime);
+                int elapsed = difftime(now, startTime);
                 int remaining = timeLimit - elapsed;
                 
+                // Check if time is up
                 if (remaining <= 0) {
-                    timeIsUp = true;
+                    if (!answered) {
+                        cout << "\rTime: 0s  | Your Answer: [TIME UP - SKIPPED]                    " << flush;
+                        answer = 'X';
+                    }
                     break;
                 }
                 
-                // Check for key press
+                // Update countdown display every second (in place)
+                if (remaining != lastShown) {
+                    cout << "\rTime: " << remaining << "s  | Your Answer: " << userInput << "                    " << flush;
+                    lastShown = remaining;
+                }
+                
+                // Check for input
                 if (_kbhit()) {
-                    answer = _getch();
-                    if (answer >= 'a' && answer <= 'd') {
-                        answer = answer - 32;
+                    char ch = _getch();
+                    
+                    // Handle Enter key - submit answer
+                    if (ch == '\r' || ch == '\n') {
+                        if (!userInput.empty()) {
+                            answer = userInput[0];
+                            answered = true;
+                            cout << "\rTime: " << remaining << "s  | Your Answer: " << userInput << " [RECORDED]                    " << flush;
+                            break;
+                        }
                     }
-                    if (answer >= 'A' && answer <= 'D') {
-                        cout << answer;
-                        answered = true;
+                    // Handle Backspace
+                    else if (ch == '\b' || ch == 127) {
+                        if (!userInput.empty()) {
+                            userInput.clear();
+                            cout << "\rTime: " << remaining << "s  | Your Answer:                     " << flush;
+                        }
+                    }
+                    // Handle valid answer keys (A, B, C, D)
+                    else {
+                        // Convert lowercase to uppercase
+                        if (ch >= 'a' && ch <= 'd') {
+                            ch = ch - 32;
+                        }
+                        
+                        // Accept only valid answers
+                        if (ch >= 'A' && ch <= 'D') {
+                            userInput = string(1, ch);
+                            cout << "\rTime: " << remaining << "s  | Your Answer: " << userInput << "                    " << flush;
+                        }
                     }
                 }
                 
-                // Small delay
-                Sleep(50);
+                Sleep(100); // Small delay to prevent CPU overload
             }
+            cout << endl;
         #else
-            // Linux/Mac: Simple input
+            // Linux/Mac: Simple input with time check
+            cout << "\nTime: " << timeLimit << "s  | Your Answer: ";
+            
             cin >> answer;
-            if (answer >= 'a' && answer <= 'd') {
-                answer = answer - 32;
-            }
-            if (answer >= 'A' && answer <= 'D') {
-                answered = true;
+            
+            // Check time
+            time_t now = time(0);
+            int elapsed = difftime(now, startTime);
+            
+            if (elapsed > timeLimit) {
+                cout << "[TIME UP]" << endl;
+                answer = 'X';
+                answered = false;
+            } else {
+                if (answer >= 'a' && answer <= 'd') {
+                    answer = answer - 32;
+                }
+                if (answer >= 'A' && answer <= 'D') {
+                    answered = true;
+                    cout << "[RECORDED]" << endl;
+                } else {
+                    answer = 'X';
+                }
             }
         #endif
         
-        cout << endl;
-        
-        // Show result
-        if (!answered || timeIsUp) {
-            cout << "\n⏰ Time's Up!" << endl;
-            answer = 'X';
-        } else {
-            cout << "\n✓ Recorded" << endl;
-        }
         
         #ifdef _WIN32
             Sleep(800);
         #else
-            usleep(800000);
+            sleep(1);
         #endif
         
+        // Calculate score
         totalMarks += currentQuestion.getMark();
         if (currentQuestion.checkAnswer(answer)) {
             score += currentQuestion.getMark();
