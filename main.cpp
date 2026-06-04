@@ -8,11 +8,6 @@
 
 using namespace std;
 
-enum UserRole {
-    ADMIN = 1,
-    STUDENT = 2
-};
-
 vector<StudentType> students;
 vector<ExamType> exams;
 vector<ResultType> results;
@@ -298,7 +293,7 @@ void handleMenuChoice(int choice, bool &isAdminLoggedIn, bool &isStudentLoggedIn
                 displayExams(exams);
                 break;
             case 19:
-                takeExam(exams, loggedInStudentId, results);
+                takeExam(exams, students, loggedInStudentId, results);
                 break;
             case 20:
                 displayStudentResults(results, loggedInStudentId);
