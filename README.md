@@ -1,28 +1,51 @@
-# Online Exam Management System
+# Online Exam Management System (Enhanced)
 
-A comprehensive C++ console application for managing online examinations with role-based access control, persistent data storage, and automated grading.
+A comprehensive C++ console application for managing online examinations with **department-based access control**, **timed questions**, role-based permissions, and automated grading.
 
 ## 📋 Table of Contents
 - [Overview](#overview)
+- [New Features (v2.0)](#new-features-v20)
 - [Features](#features)
 - [System Architecture](#system-architecture)
 - [Installation](#installation)
 - [Usage Guide](#usage-guide)
 - [Technical Specifications](#technical-specifications)
-- [Project Structure](#project-structure)
 
 ---
 
 ## 🎯 Overview
 
-The Online Exam Management System is a robust C++ application designed for educational institutions to conduct and manage online examinations efficiently. It provides separate interfaces for administrators and students with comprehensive CRUD operations and automated result processing.
+The Online Exam Management System is a robust C++ application designed for educational institutions to conduct and manage online examinations efficiently with **department-level access control** and **question timing**.
 
 **Key Highlights:**
-- Role-based access (Admin & Student)
-- Persistent file-based storage
-- Automated grading with percentage calculation
-- Cascade delete for data integrity
-- Comprehensive input validation
+- ⏱️ **Timer display for each question**
+- 🏢 **Department-based exam access**
+- 🔐 **Role-based access** (Admin & Student)
+- 💾 **Persistent file-based storage**
+- ✅ **Automated grading** with percentage calculation
+- 🔗 **Cascade delete** for data integrity
+- ✔️ **Comprehensive input validation**
+
+---
+
+## 🆕 New Features (v2.0)
+
+### ⏱️ **1. Timer Display for Questions**
+- Each question shows time limit (e.g., "30 seconds")
+- Warning displayed when taking exam
+- Default: 30 seconds per question
+- Customizable per question
+
+### 🏢 **2. Department-Based Exam Access**
+- Exams can be assigned to specific departments
+- Students only see exams for their department
+- Options: All, Computer Science, Software Engineering, IT, Custom
+- Access control enforced during exam attempt
+
+### 📚 **3. Course Organization**
+- Exams linked to course names
+- Better organization of academic content
+- Clear course identification
 
 ---
 
@@ -32,8 +55,9 @@ The Online Exam Management System is a robust C++ application designed for educa
 | Feature | Description |
 |---------|-------------|
 | **Student Management** | Add, view, search, update, and delete students |
-| **Exam Management** | Create exams, manage questions (add/edit/delete) |
-| **Question Bank** | Multiple-choice questions with 4 options |
+| **Exam Management** | Create department-specific exams, manage questions |
+| **Department Control** | Assign exams to departments or make accessible to all |
+| **Question Bank** | MCQ with 4 options, correct answer, marks, and time limits |
 | **Result Viewing** | View all student results and performance |
 | **Data Persistence** | Auto-save on all operations |
 | **Cascade Delete** | Automatic cleanup of related records |
@@ -42,7 +66,9 @@ The Online Exam Management System is a robust C++ application designed for educa
 ### Student Panel (5 Options)
 | Feature | Description |
 |---------|-------------|
+| **Department Filtering** | Automatically see only your department's exams |
 | **Exam Access** | View and take available active exams |
+| **Timed Questions** | See time limit for each question |
 | **Instant Results** | Automatic grading upon submission |
 | **Result History** | View all past exam results |
 | **Duplicate Prevention** | Cannot retake the same exam |
@@ -89,10 +115,10 @@ class Student {
 #### 3. **Question Class**
 ```cpp
 class Question {
-    int questionId, mark;
+    int questionId, mark, timeLimit;
     string questionText, optionA, optionB, optionC, optionD;
     char correctAnswer;
-    // Stores MCQ with 4 options
+    // Stores MCQ with 4 options and time limit
 };
 ```
 
@@ -100,10 +126,10 @@ class Question {
 ```cpp
 class Exam {
     int examId, durationMinutes;
-    string courseName;
+    string courseName, department;
     vector<Question> questions;
-    ExamStatus status;  // ACTIVE, INACTIVE, COMPLETED
-    // Manages exam structure and questions
+    ExamStatus status;
+    // Manages exam structure with department access control
 };
 ```
 
@@ -139,13 +165,7 @@ g++ -c main.cpp -o main.o
 g++ student.o exam.o result.o utility.o filemanager.o main.o -o exam_system.exe
 ```
 
-**Linux/macOS:**
-```bash
-g++ student.cpp exam.cpp result.cpp utility.cpp filemanager.cpp main.cpp -o exam_system
-chmod +x exam_system
-```
-
-### Quick Compile (One-liner)
+**Quick Compile:**
 ```bash
 g++ *.cpp -o exam_system
 ```
@@ -156,11 +176,7 @@ g++ *.cpp -o exam_system
 
 ### Running the Application
 ```bash
-# Windows
 exam_system.exe
-
-# Linux/macOS
-./exam_system
 ```
 
 ### Default Credentials
@@ -180,7 +196,7 @@ Password: admin123
 4.  Search Student
 5.  Update Student
 6.  Delete Student (with cascade delete)
-7.  Create Exam
+7.  Create Exam (with department selection)
 8.  Add Question to Exam
 9.  Edit Question
 10. Delete Question
@@ -195,8 +211,8 @@ Password: admin123
 #### **Student Panel (Options 17-21)**
 ```
 17. Student Login
-18. View Available Exams
-19. Take Exam
+18. View Available Exams (department-filtered)
+19. Take Exam (with timer display)
 20. View My Results
 21. Student Logout
 ```
@@ -208,38 +224,40 @@ Password: admin123
 
 ### Workflow Examples
 
-#### **Admin: Adding Students**
-1. Login as Admin (Option 1)
-2. Select "Add Student" (Option 2)
-3. Enter number of students to add
-4. For each student, provide:
-   - Student ID (unique)
-   - Full Name
-   - Department
-   - Password
-   - Registration Date (DD/MM/YYYY)
-5. Data auto-saves to `students.txt`
-
-#### **Admin: Creating Exam**
+#### **Admin: Creating Department-Specific Exam**
 1. Login as Admin (Option 1)
 2. Select "Create Exam" (Option 7)
 3. Enter Exam ID, Course Name, Duration
-4. Choose to add questions immediately or later
-5. For each question, provide:
+4. **Select Department:**
+   - 1. All Departments
+   - 2. Computer Science
+   - 3. Software Engineering
+   - 4. Information Technology
+   - 5. Custom (enter name)
+5. Choose to add questions now or later
+6. For each question:
    - Question text
    - Four options (A, B, C, D)
    - Correct answer
    - Marks
-6. Data auto-saves to `exams.txt`
+   - Time limit (default 30 seconds)
+7. Data auto-saves
 
-#### **Student: Taking Exam**
+#### **Student: Taking Exam with Timer**
 1. Login as Student (Option 17)
 2. View Available Exams (Option 18)
+   - **Only shows exams for your department**
 3. Select "Take Exam" (Option 19)
 4. Enter Exam ID
-5. Answer all questions (A/B/C/D)
-6. View instant results with grade
-7. Result auto-saves to `results.txt`
+5. **System verifies:**
+   - You're from correct department
+   - Exam is active
+   - You haven't taken it before
+6. Answer questions
+   - **See time limit**: "⏱️ You have 30 seconds for this question!"
+   - Choose A/B/C/D
+7. View instant results
+8. Auto-saved to `results.txt`
 
 ---
 
@@ -255,10 +273,11 @@ Password: admin123
 | **Enumerations** | `ExamStatus` enum |
 | **Input Validation** | Comprehensive error handling |
 | **Cascade Delete** | Referential integrity maintenance |
-| **Session Management** | Login/logout with access control |
+| **Access Control** | Department-based restrictions |
+| **Session Management** | Login/logout with role checking |
 
 ### Data Structures
-- **Vector (STL):** Dynamic storage for students, exams, results
+- **Vector (STL):** Dynamic storage for students, exams, results, questions
 - **String:** Text data management
 - **Enum:** Exam status tracking
 
@@ -288,6 +307,7 @@ Total Exams: 1
 ----------------------------------------
 Exam ID      : 101
 Course Name  : Data Structures
+Department   : Computer Science
 Duration     : 60 minutes
 Questions    : 10
 Status       : 0
@@ -302,23 +322,8 @@ Status       : 0
   Option D     : Tree structure
   Correct Ans  : A
   Marks        : 10
+  Time Limit   : 30
   ----------------------------------------
-```
-
-**results.txt:**
-```
-RESULT RECORDS DATABASE
-Total Results: 1
-========================================
-
-----------------------------------------
-Student ID   : STU001
-Exam ID      : 101
-Score        : 80 / 100
-Percentage   : 80.00%
-Grade        : B
-Status       : PASS
-----------------------------------------
 ```
 
 ### Grading System
@@ -334,50 +339,6 @@ Status       : PASS
 
 **Pass Threshold:** 50%
 
-### Key Features Implementation
-
-#### **Cascade Delete**
-```cpp
-// Deleting a student automatically removes all their results
-void deleteStudent(vector<Student> &students, vector<Result> &results) {
-    // 1. Find student
-    // 2. Count related results
-    // 3. Warn user
-    // 4. Delete student
-    // 5. Delete all related results
-    // 6. Auto-save both files
-}
-```
-
-#### **Input Validation**
-```cpp
-// All inputs validated with loop-until-valid pattern
-while (true) {
-    cout << "Enter Student ID: ";
-    getline(cin, id);
-    
-    if (id.empty()) {
-        cout << "Error: ID cannot be empty!" << endl;
-        continue;
-    }
-    
-    if (isDuplicate(id)) {
-        cout << "Error: ID already exists!" << endl;
-        continue;
-    }
-    
-    break;  // Valid input
-}
-```
-
-#### **Division by Zero Protection**
-```cpp
-float Result::getPercentage() const {
-    if (totalMarks == 0) return 0.0f;  // Protection
-    return ((float)score / totalMarks) * 100.0f;
-}
-```
-
 ---
 
 ## 📁 Project Structure
@@ -385,38 +346,32 @@ float Result::getPercentage() const {
 ```
 FOP_project/
 │
-├── main.cpp              # Main program entry and menu system
-├── student.h             # Student and Date class declarations
-├── student.cpp           # Student and Date implementations
-├── exam.h                # Exam and Question class declarations
-├── exam.cpp              # Exam and Question implementations
-├── result.h              # Result class declaration
-├── result.cpp            # Result class implementation
-├── utility.h             # Utility function declarations
-├── utility.cpp           # Utility function implementations
-├── filemanager.h         # File I/O function declarations
-├── filemanager.cpp       # File I/O implementations
+├── main.cpp              # Main program entry (320 lines)
+├── student.h/cpp         # Student & Date classes (410 lines)
+├── exam.h/cpp            # Exam & Question classes (970 lines)
+├── result.h/cpp          # Result class (125 lines)
+├── utility.h/cpp         # Helper functions (45 lines)
+├── filemanager.h/cpp     # File I/O operations (390 lines)
 │
 ├── students.txt          # Student data (auto-generated)
 ├── exams.txt             # Exam data (auto-generated)
 ├── results.txt           # Result data (auto-generated)
 │
 ├── .gitignore            # Git ignore rules
-├── README.md             # This file
-└── LICENSE               # Project license
+└── README.md             # This file
 ```
 
-### Module Responsibilities
+### Module Statistics
 
 | Module | Lines | Classes | Functions | Purpose |
 |--------|-------|---------|-----------|---------|
-| **student** | ~410 | 2 | 5 | Student & date management |
-| **exam** | ~920 | 2 | 11 | Exam & question management |
-| **result** | ~125 | 1 | 3 | Result processing |
-| **utility** | ~45 | 0 | 6 | Helper functions |
-| **filemanager** | ~390 | 0 | 6 | File I/O operations |
-| **main** | ~320 | 0 | 3 | Program flow & menu |
-| **Total** | ~2,210 | 5 | 34 | Complete system |
+| **student** | 410 | 2 | 5 | Student & date management |
+| **exam** | 970 | 2 | 11 | Exam with department & timer |
+| **result** | 125 | 1 | 3 | Result processing |
+| **utility** | 45 | 0 | 6 | Helper functions |
+| **filemanager** | 390 | 0 | 6 | File I/O operations |
+| **main** | 320 | 0 | 3 | Program flow & menu |
+| **Total** | **2,260** | **5** | **34** | Complete enhanced system |
 
 ---
 
@@ -427,19 +382,11 @@ FOP_project/
 - ✅ Data Structures (Vectors, Strings)
 - ✅ File Handling (Read/Write operations)
 - ✅ Input Validation (Error handling)
+- ✅ Access Control (Department-based restrictions)
 - ✅ Algorithm Design (Search, CRUD operations)
 - ✅ Software Architecture (Modular design)
 - ✅ Session Management (Authentication)
 - ✅ Data Integrity (Cascade delete)
-
-### Programming Best Practices
-- ✅ Separation of concerns (modular design)
-- ✅ DRY principle (utility functions)
-- ✅ Error handling (comprehensive validation)
-- ✅ Code documentation (clear comments)
-- ✅ Consistent naming conventions
-- ✅ Memory safety (STL containers)
-- ✅ Resource management (RAII)
 
 ---
 
@@ -447,34 +394,10 @@ FOP_project/
 
 - **Password Protection:** Student accounts secured with passwords
 - **Access Control:** Role-based permissions (Admin/Student)
+- **Department Restrictions:** Students can only access their department's exams
 - **Session Management:** Login/logout functionality
 - **Data Validation:** All inputs sanitized and validated
 - **Duplicate Prevention:** Students cannot retake exams
-
----
-
-## 🐛 Known Limitations
-
-1. **Single Admin Account:** Only one admin credential (hardcoded)
-2. **Plain Text Passwords:** Passwords stored without encryption
-3. **Console Interface:** No GUI (command-line only)
-4. **Single Session:** No concurrent user support
-5. **File-Based Storage:** No database integration
-
----
-
-## 🚀 Future Enhancements
-
-- [ ] Database integration (MySQL/SQLite)
-- [ ] Password encryption (hashing)
-- [ ] Multiple admin accounts
-- [ ] GUI interface (Qt/wxWidgets)
-- [ ] Timer for exams
-- [ ] Question randomization
-- [ ] Export results to PDF/CSV
-- [ ] Email notifications
-- [ ] Multi-language support
-- [ ] Analytics dashboard
 
 ---
 
@@ -492,6 +415,24 @@ FOP_project/
 | Error Handling | ✅ Comprehensive |
 | Bounds Checking | ✅ All vectors checked |
 | File I/O Safety | ✅ All operations protected |
+| Department Access | ✅ Enforced |
+| Timer Display | ✅ Working |
+
+---
+
+## 🚀 Future Enhancements
+
+- [x] **Department-based exam access** ✅ Implemented
+- [x] **Timer display per question** ✅ Implemented
+- [ ] **Real-time timer countdown** (active enforcement)
+- [ ] Database integration (MySQL/SQLite)
+- [ ] Password encryption (hashing)
+- [ ] Multiple admin accounts
+- [ ] GUI interface (Qt/wxWidgets)
+- [ ] Question randomization
+- [ ] Export to PDF/CSV
+- [ ] Email notifications
+- [ ] Analytics dashboard
 
 ---
 
@@ -506,7 +447,7 @@ FOP_project/
 
 ## 📄 License
 
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+This project is licensed under the MIT License.
 
 ---
 
@@ -518,18 +459,10 @@ For questions or issues:
 
 ---
 
-## 🙏 Acknowledgments
-
-- AASTU Faculty for project guidance
-- C++ Standard Library documentation
-- Open-source community for best practices
-
----
-
-**Last Updated:** May 24, 2026  
-**Version:** 1.0.0  
+**Version:** 2.0.0 (Enhanced)  
+**Last Updated:** June 4, 2026  
 **Status:** Production Ready ✅
 
 ---
 
-*Built with ❤️ using C++*
+*Built with ❤️ using C++ - Enhanced with Department Access & Timers*
