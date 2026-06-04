@@ -5,6 +5,10 @@
 #include <vector>
 using namespace std;
 
+// Forward declarations
+class Student;
+typedef Student StudentType;
+
 // Exam status enumeration
 enum ExamStatus {
     ACTIVE,
@@ -25,6 +29,7 @@ private:
     string optionD;
     char correctAnswer;
     int mark;
+    int timeLimit;  // Time limit in seconds per question
 
 public:
     Question();
@@ -47,6 +52,9 @@ public:
     void setOptionD(string d);
     void setCorrectAnswer(char ans);
     void setMark(int m);
+    void setTimeLimit(int seconds);
+    
+    int getTimeLimit() const;
     
     void inputQuestionData();
     void displayQuestion() const;
@@ -60,6 +68,7 @@ class Exam {
 private:
     int examId;
     string courseName;
+    string department;  // Department restriction
     int durationMinutes;
     vector<QuestionType> questions;  // Using vector instead of array
     ExamStatusType status;
@@ -70,6 +79,7 @@ public:
     
     int getExamId() const;
     string getCourseName() const;
+    string getDepartment() const;
     int getDurationMinutes() const;
     int getTotalQuestions() const;
     ExamStatusType getStatus() const;
@@ -77,6 +87,7 @@ public:
     
     void setExamId(int id);
     void setCourseName(string course);
+    void setDepartment(string dept);
     void setDurationMinutes(int duration);
     void setStatus(ExamStatusType st);
     
@@ -98,8 +109,8 @@ void updateExam(vector<ExamType> &exams);
 void deleteExam(vector<ExamType> &exams, vector<class Result> &results);
 void displayExams(const vector<ExamType> &exams);
 int searchExam(const vector<ExamType> &exams, int examId);
-void takeExam(const vector<ExamType> &exams, string studentId, 
-              vector<class Result> &results);
+void takeExam(const vector<ExamType> &exams, const vector<StudentType> &students, 
+              string studentId, vector<Result> &results);
 void addQuestionsToExam(vector<ExamType> &exams, int examIndex);
 
 #endif

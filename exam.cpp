@@ -3,7 +3,19 @@
 #include "utility.h"
 #include "filemanager.h"
 #include <iostream>
+#include <ctime>
+#ifdef _WIN32
+    #include <windows.h>
+    #include <conio.h>
+#else
+    #include <unistd.h>
+#endif
 using namespace std;
+
+// Global timer variables
+static time_t questionStartTime = 0;
+static int questionTimeLimit = 0;
+static bool timeIsUp = false;
 
 // Question class implementation
 Question::Question() {
@@ -15,6 +27,7 @@ Question::Question() {
     optionD = "";
     correctAnswer = 'A';
     mark = 0;
+    timeLimit = 30;  // Default 30 seconds per question
 }
 
 Question::Question(int id, string text, string a, string b, string c, string d, char ans, int m) {
@@ -26,6 +39,7 @@ Question::Question(int id, string text, string a, string b, string c, string d, 
     optionD = d;
     correctAnswer = ans;
     mark = m;
+    timeLimit = 30;  // Default 30 seconds
 }
 
 int Question::getQuestionId() const { return questionId; }
@@ -45,6 +59,9 @@ void Question::setOptionC(string c) { optionC = c; }
 void Question::setOptionD(string d) { optionD = d; }
 void Question::setCorrectAnswer(char ans) { correctAnswer = ans; }
 void Question::setMark(int m) { mark = m; }
+void Question::setTimeLimit(int seconds) { timeLimit = seconds; }
+
+int Question::getTimeLimit() const { return timeLimit; }
 
 void Question::inputQuestionData() {
     cin.ignore();
@@ -138,6 +155,7 @@ bool Question::checkAnswer(char answer) const {
 Exam::Exam() {
     examId = 0;
     courseName = "";
+    department = "All";  // Default: accessible to all departments
     durationMinutes = 0;
     status = ACTIVE;
 }
@@ -145,12 +163,14 @@ Exam::Exam() {
 Exam::Exam(int id, string course, int duration) {
     examId = id;
     courseName = course;
+    department = "All";  // Default: accessible to all
     durationMinutes = duration;
     status = ACTIVE;
 }
 
 int Exam::getExamId() const { return examId; }
 string Exam::getCourseName() const { return courseName; }
+string Exam::getDepartment() const { return department; }
 int Exam::getDurationMinutes() const { return durationMinutes; }
 int Exam::getTotalQuestions() const { return questions.size(); }
 ExamStatusType Exam::getStatus() const { return status; }
@@ -158,12 +178,14 @@ QuestionType Exam::getQuestion(int index) const { return questions[index]; }
 
 void Exam::setExamId(int id) { examId = id; }
 void Exam::setCourseName(string course) { courseName = course; }
+void Exam::setDepartment(string dept) { department = dept; }
 void Exam::setDurationMinutes(int duration) { durationMinutes = duration; }
 void Exam::setStatus(ExamStatusType st) { status = st; }
 
 void Exam::displayExamDetails() const {
     cout << "Exam ID: " << examId << endl;
     cout << "Course: " << courseName << endl;
+    cout << "Department: " << department << endl;
     cout << "Duration: " << durationMinutes << " minutes" << endl;
     cout << "Total Questions: " << questions.size() << endl;
     cout << "Status: ";
@@ -308,6 +330,42 @@ void createExam(vector<ExamType> &exams) {
         break;
     }
     
+    string tempDept;
+    cout << "\nSelect Department:" << endl;
+    cout << "1. All Departments" << endl;
+    cout << "2. Computer Science" << endl;
+    cout << "3. Software Engineering" << endl;
+    cout << "4. Information Technology" << endl;
+    cout << "5. Other (Custom)" << endl;
+    
+    int deptChoice;
+    while (true) {
+        cout << "Enter choice (1-5): ";
+        if (!(cin >> deptChoice)) {
+            cin.clear();
+            cin.ignore(10000, '\n');
+            cout << "Error: Please enter a valid number!" << endl;
+            continue;
+        }
+        cin.ignore();
+        
+        if (deptChoice >= 1 && deptChoice <= 5) {
+            break;
+        }
+        cout << "Error: Choice must be between 1 and 5!" << endl;
+    }
+    
+    switch (deptChoice) {
+        case 1: tempDept = "All"; break;
+        case 2: tempDept = "Computer Science"; break;
+        case 3: tempDept = "Software Engineering"; break;
+        case 4: tempDept = "Information Technology"; break;
+        case 5:
+            cout << "Enter Department Name: ";
+            getline(cin, tempDept);
+            break;
+    }
+    
     int tempDuration;
     while (true) {
         cout << "Enter Duration (minutes): ";
@@ -327,6 +385,7 @@ void createExam(vector<ExamType> &exams) {
     }
     
     ExamType newExam(tempId, tempCourse, tempDuration);
+    newExam.setDepartment(tempDept);
     exams.push_back(newExam);
     
     saveExamsToFile(exams);
@@ -794,7 +853,8 @@ int searchExam(const vector<ExamType> &exams, int examId) {
     return -1;
 }
 
-void takeExam(const vector<ExamType> &exams, string studentId, vector<Result> &results) {
+void takeExam(const vector<ExamType> &exams, const vector<StudentType> &students,
+              string studentId, vector<Result> &results) {
     clearScreen();
     displayHeader("TAKE EXAM");
     
@@ -804,21 +864,33 @@ void takeExam(const vector<ExamType> &exams, string studentId, vector<Result> &r
         return;
     }
     
-    cout << "Available Exams:" << endl;
+    // Get student's department
+    int studentIndex = searchStudent(students, studentId);
+    string studentDept = "";
+    if (studentIndex != -1) {
+        studentDept = students[studentIndex].getDepartment();
+    }
+    
+    cout << "Available Exams for Your Department (" << studentDept << "):" << endl;
     displayLine();
     bool hasActiveExams = false;
     for (size_t i = 0; i < exams.size(); i++) {
         if (exams[i].isActive() && exams[i].getTotalQuestions() > 0) {
-            cout << "Exam ID: " << exams[i].getExamId() 
-                 << " | Course: " << exams[i].getCourseName() 
-                 << " | Questions: " << exams[i].getTotalQuestions() << endl;
-            hasActiveExams = true;
+            // Check department access
+            string examDept = exams[i].getDepartment();
+            if (examDept == "All" || examDept == studentDept) {
+                cout << "Exam ID: " << exams[i].getExamId() 
+                     << " | Course: " << exams[i].getCourseName() 
+                     << " | Department: " << examDept
+                     << " | Questions: " << exams[i].getTotalQuestions() << endl;
+                hasActiveExams = true;
+            }
         }
     }
     displayLine();
     
     if (!hasActiveExams) {
-        cout << "No active exams with questions available." << endl;
+        cout << "No active exams available for your department." << endl;
         pauseSystem();
         return;
     }
@@ -839,6 +911,14 @@ void takeExam(const vector<ExamType> &exams, string studentId, vector<Result> &r
     
     if (examIndex == -1) {
         cout << "Exam not found!" << endl;
+        pauseSystem();
+        return;
+    }
+    
+    // Check department access
+    string examDept = exams[examIndex].getDepartment();
+    if (examDept != "All" && examDept != studentDept) {
+        cout << "Access Denied! This exam is only for " << examDept << " department." << endl;
         pauseSystem();
         return;
     }
@@ -864,9 +944,11 @@ void takeExam(const vector<ExamType> &exams, string studentId, vector<Result> &r
     
     clearScreen();
     displayHeader(exams[examIndex].getCourseName());
-    cout << "Duration: " << exams[examIndex].getDurationMinutes() << " minutes" << endl;
-    cout << "Total Questions: " << exams[examIndex].getTotalQuestions() << endl;
-    cout << "\nPress Enter to start...";
+    cout << "Department: " << examDept << " | Duration: " << exams[examIndex].getDurationMinutes() << " min | Questions: " << exams[examIndex].getTotalQuestions() << endl;
+    displayLine();
+    cout << "Instructions: Each question has a time limit. Answer quickly!" << endl;
+    displayLine();
+    cout << "\nPress Enter to begin...";
     cin.ignore();
     cin.get();
     
@@ -874,34 +956,90 @@ void takeExam(const vector<ExamType> &exams, string studentId, vector<Result> &r
     int totalMarks = 0;
     
     for (int i = 0; i < exams[examIndex].getTotalQuestions(); i++) {
-        clearScreen();
         QuestionType currentQuestion = exams[examIndex].getQuestion(i);
+        int timeLimit = currentQuestion.getTimeLimit();
         
-        cout << "Question " << (i + 1) << " of " << exams[examIndex].getTotalQuestions() << endl;
-        displayLine();
-        currentQuestion.displayQuestion();
-        displayLine();
+        // Start timer
+        questionStartTime = time(0);
+        questionTimeLimit = timeLimit;
+        timeIsUp = false;
         
-        char answer;
-        while (true) {
-            cout << "Your Answer (A/B/C/D): ";
+        // Display question
+        clearScreen();
+        cout << "═══════════════════════════════════════════════════════════" << endl;
+        cout << " Question " << (i + 1) << "/" << exams[examIndex].getTotalQuestions() << "                    ⏱ Time Limit: " << timeLimit << "s" << endl;
+        cout << "═══════════════════════════════════════════════════════════" << endl;
+        cout << endl;
+        cout << currentQuestion.getQuestionText() << endl << endl;
+        cout << "  A. " << currentQuestion.getOptionA() << endl;
+        cout << "  B. " << currentQuestion.getOptionB() << endl;
+        cout << "  C. " << currentQuestion.getOptionC() << endl;
+        cout << "  D. " << currentQuestion.getOptionD() << endl;
+        cout << endl;
+        cout << "Points: " << currentQuestion.getMark() << endl;
+        cout << "───────────────────────────────────────────────────────────" << endl;
+        
+        char answer = 'X';
+        bool answered = false;
+        
+        cout << "\nAnswer (A/B/C/D): ";
+        
+        #ifdef _WIN32
+            // Windows: Non-blocking input with timer
+            while (!timeIsUp && !answered) {
+                // Check elapsed time
+                time_t now = time(0);
+                int elapsed = difftime(now, questionStartTime);
+                int remaining = timeLimit - elapsed;
+                
+                if (remaining <= 0) {
+                    timeIsUp = true;
+                    break;
+                }
+                
+                // Check for key press
+                if (_kbhit()) {
+                    answer = _getch();
+                    if (answer >= 'a' && answer <= 'd') {
+                        answer = answer - 32;
+                    }
+                    if (answer >= 'A' && answer <= 'D') {
+                        cout << answer;
+                        answered = true;
+                    }
+                }
+                
+                // Small delay
+                Sleep(50);
+            }
+        #else
+            // Linux/Mac: Simple input
             cin >> answer;
-            
             if (answer >= 'a' && answer <= 'd') {
                 answer = answer - 32;
             }
-            
             if (answer >= 'A' && answer <= 'D') {
-                break;
+                answered = true;
             }
-            
-            cout << "Error: Please enter A, B, C, or D only!" << endl;
-            cin.clear();
-            cin.ignore(10000, '\n');
+        #endif
+        
+        cout << endl;
+        
+        // Show result
+        if (!answered || timeIsUp) {
+            cout << "\n⏰ Time's Up!" << endl;
+            answer = 'X';
+        } else {
+            cout << "\n✓ Recorded" << endl;
         }
         
-        totalMarks += currentQuestion.getMark();
+        #ifdef _WIN32
+            Sleep(800);
+        #else
+            usleep(800000);
+        #endif
         
+        totalMarks += currentQuestion.getMark();
         if (currentQuestion.checkAnswer(answer)) {
             score += currentQuestion.getMark();
         }
